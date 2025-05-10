@@ -1,4 +1,3 @@
-
 // This is a placeholder page for a single blog post.
 // In a real application, you would fetch the post data based on the slug.
 // For now, it will display some dummy content.
@@ -118,13 +117,12 @@ export default async function BlogPostPage({ params }: { params: { slug: string 
   );
 }
 
-// Generate static paths for dummy posts if needed for build
-// export async function generateStaticParams() {
-//   const posts = [
-//     { slug: "future-of-generative-ai" },
-//     { slug: "beginners-guide-prompt-engineering" },
-//   ];
-//   return posts.map((post) => ({
-//     slug: post.slug,
-//   }));
-// }
+export async function generateStaticParams() {
+  const posts = [
+    { slug: "future-of-generative-ai" },
+    { slug: "beginners-guide-prompt-engineering" },
+  ];
+  return posts.map((post) => ({
+    slug: post.slug,
+  }));
+}

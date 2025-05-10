@@ -1,4 +1,3 @@
-
 // This is a placeholder page for posts by category.
 // In a real application, you would fetch posts based on the categorySlug.
 
@@ -107,10 +106,10 @@ export default async function CategoryPage({ params }: { params: { categorySlug:
 }
 
 // Generate static paths for dummy categories if needed for build
-// export async function generateStaticParams() {
-//   const categorySlugs = ["ai-news", "tutorials", "case-studies"];
-//   return categorySlugs.map((slug) => ({
-//     categorySlug: slug,
-//   }));
-// }
+export async function generateStaticParams() {
+  const categorySlugs = ["ai-news", "tutorials", "case-studies"];
+  return categorySlugs.map((slug) => ({
+    categorySlug: slug,
+  }));
+}
 
