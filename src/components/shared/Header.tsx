@@ -1,15 +1,22 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Menu, CodeXml } from 'lucide-react';
+import { Menu, CodeXml, LogIn, UserCog, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase/client';
+import { useRouter } from 'next/navigation'; // Import useRouter
+import ThemeSwitcher from './ThemeSwitcher'; // Import ThemeSwitcher
 
-const navItems = [
+const baseNavItems = [
   { href: '#about', label: 'About' },
   { href: '#projects', label: 'Projects' },
+  { href: '#blog', label: 'Blog'},
   { href: '#hire-me', label: 'Hire Me' },
   { href: '#mentorship', label: 'Mentorship' },
   { href: '#contact', label: 'Contact' },
@@ -18,13 +25,27 @@ const navItems = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
+  const { user, loading } = useAuth();
+  const router = useRouter(); // Initialize useRouter
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login'); // Redirect to login after sign out
+      // Optionally, show a toast message for successful logout
+    } catch (error) {
+      console.error("Error signing out: ", error);
+      // Handle error
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       
       let currentSection = '';
-      navItems.forEach(item => {
+      const navItemsForScroll = baseNavItems.filter(item => item.href.startsWith('#'));
+      navItemsForScroll.forEach(item => {
         const section = document.querySelector(item.href) as HTMLElement;
         if (section && section.offsetTop <= window.scrollY + 100) {
           currentSection = item.href;
@@ -34,10 +55,15 @@ export default function Header() {
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Call on mount to set initial state
+    handleScroll(); 
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const navItems = [
+    ...baseNavItems,
+    ...(user ? [{ href: '/admin/dashboard', label: 'Admin', icon: UserCog, type: 'admin' as const }] : []),
+  ];
 
   return (
     <header className={cn(
@@ -51,41 +77,73 @@ export default function Header() {
             <span>Venkatesh.ai</span>
           </Link>
           
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-2 lg:space-x-4">
+          <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
             {navItems.map((item) => (
               <Link key={item.label} href={item.href} passHref legacyBehavior>
                 <a className={cn(
-                  "px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/10",
-                  activeSection === item.href ? "text-primary bg-primary/10" : "text-foreground/80"
+                  "px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-1.5",
+                  (item.href.startsWith('#') ? activeSection === item.href : activeSection.startsWith(item.href))
+                    ? "text-primary bg-primary/10" 
+                    : "text-foreground/80"
                 )}>
+                  {item.icon && <item.icon className="h-4 w-4" />}
                   {item.label}
                 </a>
               </Link>
             ))}
+            {!loading && (
+              user ? (
+                <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-foreground/80 hover:text-primary hover:bg-primary/10">
+                  <LogOut className="mr-1.5 h-4 w-4" /> Logout
+                </Button>
+              ) : (
+                <Button variant="ghost" size="sm" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10">
+                  <Link href="/login">
+                    <LogIn className="mr-1.5 h-4 w-4" /> Login
+                  </Link>
+                </Button>
+              )
+            )}
+            <ThemeSwitcher /> 
           </nav>
 
-          {/* Mobile Navigation */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center">
+            <ThemeSwitcher />
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon">
+                <Button variant="ghost" size="icon" className="ml-2">
                   <Menu className="h-6 w-6 text-primary" />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
               <SheetContent side="right" className="w-[250px] bg-background p-6">
-                <nav className="flex flex-col space-y-4 mt-8">
+                <nav className="flex flex-col space-y-3 mt-8">
                   {navItems.map((item) => (
                      <Link key={item.label} href={item.href} passHref legacyBehavior>
                       <a className={cn(
-                        "block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary hover:bg-primary/10",
-                        activeSection === item.href ? "text-primary bg-primary/10" : "text-foreground/80"
+                        "block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-2",
+                        (item.href.startsWith('#') ? activeSection === item.href : activeSection.startsWith(item.href))
+                          ? "text-primary bg-primary/10" 
+                          : "text-foreground/80"
                       )}>
+                        {item.icon && <item.icon className="h-5 w-5" />}
                         {item.label}
                       </a>
                     </Link>
                   ))}
+                   {!loading && (
+                    user ? (
+                      <Button variant="ghost" onClick={handleSignOut} className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
+                        <LogOut className="mr-2 h-5 w-5" /> Logout
+                      </Button>
+                    ) : (
+                       <Button variant="ghost" asChild className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
+                        <Link href="/login">
+                          <LogIn className="mr-2 h-5 w-5" /> Login
+                        </Link>
+                      </Button>
+                    )
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>
