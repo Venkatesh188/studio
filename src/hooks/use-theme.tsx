@@ -4,7 +4,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 
-export type Theme = 'light' | 'dark' | 'forest';
+export type Theme = 'light' | 'dark';
 
 interface ThemeContextType {
   theme: Theme;
@@ -18,13 +18,19 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme') as Theme | null;
-    if (storedTheme) {
-      setThemeState(storedTheme);
-      document.documentElement.className = storedTheme;
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    let initialTheme: Theme;
+
+    if (storedTheme && (storedTheme === 'light' || storedTheme === 'dark')) {
+      initialTheme = storedTheme;
     } else {
-      // Apply default theme class if no theme is stored
-      document.documentElement.className = 'dark'; 
+      initialTheme = systemPrefersDark ? 'dark' : 'light';
     }
+    
+    setThemeState(initialTheme);
+    document.documentElement.className = initialTheme;
+    localStorage.setItem('theme', initialTheme); // Ensure localStorage is set on initial load
   }, []);
 
   const setTheme = useCallback((newTheme: Theme) => {
