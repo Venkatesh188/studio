@@ -1,8 +1,8 @@
-
-import type {NextConfig} from 'next';
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
+  output: 'export', // Add this line to enable static export
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -19,10 +19,10 @@ const nextConfig: NextConfig = {
       },
       // Add other image hostnames if needed, e.g., Firebase Storage
       // {
-      //   protocol: 'https',
-      //   hostname: 'firebasestorage.googleapis.com',
-      //   port: '',
-      //   pathname: '/**',
+      //    protocol: 'https',
+      //    hostname: 'firebasestorage.googleapis.com',
+      //    port: '',
+      //    pathname: '/**',
       // },
     ],
   },
