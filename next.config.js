@@ -6,7 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,  // Required for static export
     domains: ['picsum.photos'], // Allow images from picsum.photos
-  },
+  }
 };
 
 module.exports = nextConfig; 

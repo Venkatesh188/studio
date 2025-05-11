@@ -5,14 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Content Manager | Venkatesh.ai</title>
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <!-- Include Netlify Identity for authentication -->
+    <!-- Include Netlify Identity Widget -->
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
-    <!-- Include the Netlify CMS -->
-    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
+    <!-- Include Decap CMS (formerly Netlify CMS) -->
+    <script src="https://unpkg.com/@staticcms/app@^4.0.0/dist/static-cms-app.js"></script>
+
     <script>
-      // Initialize the GitHub OAuth backend
+      window.CMS_MANUAL_INIT = true;
+      
+      window.addEventListener('DOMContentLoaded', function() {
+        const config = {
+          backend: {
+            name: 'github',
+            repo: 'Venkatesh188/studio',
+            branch: 'master',
+            auth_scope: 'repo,user'
+          },
+          media_folder: 'public/images/uploads',
+          public_folder: '/images/uploads',
+          collections: [
+            {
+              name: 'posts',
+              label: 'Blog Posts',
+              folder: 'content/posts',
+              create: true,
+              slug: '{{slug}}',
+              fields: [
+                { label: 'Title', name: 'title', widget: 'string' },
+                { label: 'Publish Date', name: 'date', widget: 'datetime' },
+                { label: 'Cover Image', name: 'coverImage', widget: 'image', required: false },
+                { label: 'Excerpt', name: 'excerpt', widget: 'text', required: false },
+                { label: 'Author Name', name: 'author.name', widget: 'string', default: 'Venkatesh Shivandi' },
+                { label: 'Author Image', name: 'author.image', widget: 'image', default: 'https://picsum.photos/seed/author/100/100', required: false },
+                { label: 'Category', name: 'category', widget: 'string', default: 'Technology' },
+                { label: 'Tags', name: 'tags', widget: 'list', required: false },
+                { label: 'Featured Post', name: 'featured', widget: 'boolean', default: false },
+                { label: 'Body', name: 'body', widget: 'markdown' }
+              ]
+            },
+            {
+              name: 'projects',
+              label: 'Projects',
+              folder: 'content/projects',
+              create: true,
+              slug: '{{slug}}',
+              fields: [
+                { label: 'Title', name: 'title', widget: 'string' },
+                { label: 'Description', name: 'description', widget: 'text' },
+                { label: 'Problem', name: 'problem', widget: 'text' },
+                { label: 'Tools', name: 'tools', widget: 'list' },
+                { label: 'Outcome', name: 'outcome', widget: 'text' },
+                { label: 'Image', name: 'imageUrl', widget: 'image' },
+                { label: 'Image Alt Text', name: 'imageHint', widget: 'string' },
+                { label: 'Live Link', name: 'liveLink', widget: 'string', required: false },
+                { label: 'Repo Link', name: 'repoLink', widget: 'string', required: false },
+                { label: 'Paper Link', name: 'paperLink', widget: 'string', required: false },
+                { label: 'Order', name: 'order', widget: 'number', default: 0 }
+              ]
+            }
+          ]
+        };
+        
+        window.StaticCms.init({ config });
+      });
+      
+      // GitHub OAuth configuration
       if (window.netlifyIdentity) {
         window.netlifyIdentity.on("init", (user) => {
           if (!user) {
@@ -23,5 +82,7 @@
         });
       }
     </script>
+    
+    <div id="nc-root"></div>
   </body>
 </html> 
