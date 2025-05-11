@@ -34,7 +34,7 @@ export default function MentorshipSection() {
             alt="AI Mentorship"
             width={600}
             height={400}
-            className="rounded-lg shadow-2xl relative"
+            className="rounded-lg relative shadow-[0_4px_20px_rgba(0,206,209,0.3)] dark:shadow-[0_4px_20px_rgba(0,255,255,0.35)] transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,206,209,0.5)] dark:hover:shadow-[0_8px_30px_rgba(0,255,255,0.6)]"
             data-ai-hint="teacher student"
           />
         </div>

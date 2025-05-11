@@ -5,6 +5,9 @@ import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { LayoutDashboard, FileText, UserCircle, Newspaper, Settings, Tags, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/hooks/use-auth';
+import { signOut } from '@/lib/firebase/client';
+import { auth } from '@/lib/firebase/client';
 
 const adminNavItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -17,10 +20,15 @@ const adminNavItems = [
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { user } = useAuth();
   
-  const handleSignOut = () => {
-    // Redirect to CMS admin for logout 
-    router.push('/admin');
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
   };
 
   return (
@@ -29,7 +37,7 @@ export default function AdminSidebar() {
         <Link href="/admin/dashboard" className="text-2xl font-bold text-primary">
           Admin Panel
         </Link>
-        <p className="text-xs text-muted-foreground mt-1">Logged in as admin</p>
+        {user && <p className="text-xs text-muted-foreground mt-1">{user.email}</p>}
       </div>
       <nav className="flex-grow">
         <ul className="space-y-2">

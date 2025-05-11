@@ -18,7 +18,7 @@ export default function AboutSection() {
             Hello! I'm Venkatesh Shivandi, an Applied Machine Intelligence professional with a passion for leveraging AI to solve real-world challenges and drive impactful change. My journey in AI is fueled by a deep curiosity and a commitment to continuous learning.
           </p>
           <p>
-            With a Master’s in Applied Machine Intelligence from Northeastern University (GPA: 3.94) and hands-on experience in roles spanning AI development, software engineering, and data science, I've honed a versatile skill set. I specialize in developing robust machine learning models, optimizing complex systems, and translating data into actionable insights.
+            With a Master's in Applied Machine Intelligence from Northeastern University (GPA: 3.94) and hands-on experience in roles spanning AI development, software engineering, and data science, I've honed a versatile skill set. I specialize in developing robust machine learning models, optimizing complex systems, and translating data into actionable insights.
           </p>
           <p>
             My expertise includes Python, SQL, NoSQL, and cloud platforms like AWS and Azure. I'm proficient in tools like Power BI, Tableau, and various machine learning libraries. I'm also a Microsoft Certified Azure Data Engineer Associate.
@@ -34,7 +34,7 @@ export default function AboutSection() {
             alt="Venkatesh Shivandi working on AI"
             width={600}
             height={400}
-            className="rounded-lg shadow-2xl relative"
+            className="rounded-lg relative shadow-[0_4px_20px_rgba(0,206,209,0.3)] dark:shadow-[0_4px_20px_rgba(0,255,255,0.35)] transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,206,209,0.5)] dark:hover:shadow-[0_8px_30px_rgba(0,255,255,0.6)]"
             data-ai-hint="person working computer"
           />
         </div>
@@ -43,7 +43,7 @@ export default function AboutSection() {
         <h3 className="text-2xl font-semibold text-center mb-8 text-primary">Key Achievements</h3>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {achievements.map((achievement, index) => (
-            <div key={index} className="bg-card p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center text-center">
+            <div key={index} className="bg-card p-6 rounded-lg shadow-[0_4px_15px_rgba(0,206,209,0.15)] dark:shadow-[0_4px_15px_rgba(0,255,255,0.2)] hover:shadow-[0_6px_20px_rgba(0,206,209,0.3)] dark:hover:shadow-[0_6px_20px_rgba(0,255,255,0.4)] transition-all duration-300 flex flex-col items-center text-center border border-primary/10">
               <achievement.icon className="h-10 w-10 text-primary mb-4" />
               <p className="text-sm text-card-foreground/80">{achievement.text}</p>
             </div>

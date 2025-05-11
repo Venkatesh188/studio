@@ -6,8 +6,11 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, CodeXml, LogIn, UserCog, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { useRouter } from 'next/navigation'; // Import useRouter
-import ThemeSwitcher from './ThemeSwitcher'; // Import ThemeSwitcher
+import { useRouter, usePathname } from 'next/navigation';
+import { useAuth } from '@/hooks/use-auth';
+import { signOut } from '@/lib/firebase/client';
+import { auth } from '@/lib/firebase/client';
+import ThemeSwitcher from './ThemeSwitcher';
 
 type NavItem = {
   href: string;
@@ -28,37 +31,55 @@ const baseNavItems: NavItem[] = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const router = useRouter(); // Initialize useRouter
+  const router = useRouter();
+  const pathname = usePathname();
+  const { user, loading } = useAuth();
   
-  // Simulate auth state for UI - will always show admin link for now
-  // since we're using Static CMS for actual authentication
-  const hasAdminAccess = true;
+  // Check if we're on the homepage
+  const isHomePage = pathname === '/';
+
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      router.push('/login');
+    } catch (error) {
+      console.error("Error signing out: ", error);
+    }
+  };
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       
-      let currentSection = '';
-      const navItemsForScroll = baseNavItems.filter(item => item.href.startsWith('#'));
-      navItemsForScroll.forEach(item => {
-        const section = document.querySelector(item.href) as HTMLElement;
-        if (section && section.offsetTop <= window.scrollY + 100) {
-          currentSection = item.href;
-        }
-      });
-      setActiveSection(currentSection);
+      if (isHomePage) {
+        let currentSection = '';
+        const navItemsForScroll = baseNavItems.filter(item => item.href.startsWith('#'));
+        navItemsForScroll.forEach(item => {
+          const section = document.querySelector(item.href) as HTMLElement;
+          if (section && section.offsetTop <= window.scrollY + 100) {
+            currentSection = item.href;
+          }
+        });
+        setActiveSection(currentSection);
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
     handleScroll(); 
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHomePage]);
 
-  const navItems = [
-    ...baseNavItems,
-    ...(hasAdminAccess ? [{ href: '/admin', label: 'Admin', icon: UserCog, type: 'admin' as const }] : []),
-  ];
+  // Add root path to section links when not on homepage
+  const getNavItemPath = (href: string) => {
+    if (href.startsWith('#') && !isHomePage) {
+      return `/${href}`;
+    }
+    return href;
+  };
+
+  // No longer include the Admin link in the navigation
+  const navItems = [...baseNavItems];
 
   return (
     <header className={cn(
@@ -74,7 +95,7 @@ export default function Header() {
           
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
             {navItems.map((item) => (
-              <Link key={item.label} href={item.href} passHref legacyBehavior>
+              <Link key={item.label} href={getNavItemPath(item.href)} passHref legacyBehavior>
                 <a className={cn(
                   "px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-1.5",
                   (item.href.startsWith('#') ? activeSection === item.href : activeSection.startsWith(item.href))
@@ -86,21 +107,19 @@ export default function Header() {
                 </a>
               </Link>
             ))}
-            
-            {!hasAdminAccess ? (
-              <Button variant="ghost" size="sm" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10">
-                <Link href="/admin">
-                  <LogIn className="mr-1.5 h-4 w-4" /> Login
-                </Link>
-              </Button>
-            ) : (
-              <Button variant="ghost" size="sm" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10">
-                <Link href="/admin">
-                  <UserCog className="mr-1.5 h-4 w-4" /> Admin
-                </Link>
-              </Button>
+            {!loading && (
+              user ? (
+                <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-foreground/80 hover:text-primary hover:bg-primary/10">
+                  <LogOut className="mr-1.5 h-4 w-4" /> Logout
+                </Button>
+              ) : (
+                <Button variant="ghost" size="sm" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10">
+                  <Link href="/login">
+                    <LogIn className="mr-1.5 h-4 w-4" /> Login
+                  </Link>
+                </Button>
+              )
             )}
-            
             <ThemeSwitcher /> 
           </nav>
 
@@ -116,7 +135,7 @@ export default function Header() {
               <SheetContent side="right" className="w-[250px] bg-background p-6">
                 <nav className="flex flex-col space-y-3 mt-8">
                   {navItems.map((item) => (
-                     <Link key={item.label} href={item.href} passHref legacyBehavior>
+                     <Link key={item.label} href={getNavItemPath(item.href)} passHref legacyBehavior>
                       <a className={cn(
                         "block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-2",
                         (item.href.startsWith('#') ? activeSection === item.href : activeSection.startsWith(item.href))
@@ -128,19 +147,18 @@ export default function Header() {
                       </a>
                     </Link>
                   ))}
-                  
-                  {!hasAdminAccess ? (
-                    <Button variant="ghost" asChild className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
-                      <Link href="/admin">
-                        <LogIn className="mr-2 h-5 w-5" /> Login
-                      </Link>
-                    </Button>
-                  ) : (
-                    <Button variant="ghost" asChild className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
-                      <Link href="/admin">
-                        <UserCog className="mr-2 h-5 w-5" /> Admin
-                      </Link>
-                    </Button>
+                   {!loading && (
+                    user ? (
+                      <Button variant="ghost" onClick={handleSignOut} className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
+                        <LogOut className="mr-2 h-5 w-5" /> Logout
+                      </Button>
+                    ) : (
+                       <Button variant="ghost" asChild className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
+                        <Link href="/login">
+                          <LogIn className="mr-2 h-5 w-5" /> Login
+                        </Link>
+                      </Button>
+                    )
                   )}
                 </nav>
               </SheetContent>

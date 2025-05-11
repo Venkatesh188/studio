@@ -1,101 +1,135 @@
-
-import SectionWrapper from "@/components/shared/SectionWrapper";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Tag, CalendarDays, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
+import { getAllPosts, type Post } from "@/lib/markdown";
+import { formatDate } from "@/lib/utils";
+import { Metadata } from "next";
+import { Badge } from "@/components/ui/badge";
 
-// Dummy data - replace with Firestore data fetching
-const recentPosts = [
-  { id: "1", title: "The Future of Generative AI", slug: "future-of-generative-ai", excerpt: "Exploring upcoming trends and impacts of generative AI models across industries.", imageUrl: "https://picsum.photos/seed/blogpost1/400/250", imageHint: "ai future", category: "AI News", date: "2024-07-28", author: "Venkatesh S." },
-  { id: "2", title: "A Beginner's Guide to Prompt Engineering", slug: "beginners-guide-prompt-engineering", excerpt: "Learn the art of crafting effective prompts for better AI-generated results.", imageUrl: "https://picsum.photos/seed/blogpost2/400/250", imageHint: "code screen", category: "Tutorials", date: "2024-07-25", author: "Venkatesh S." },
-  { id: "3", title: "AI in Personalized Education", slug: "ai-in-personalized-education", excerpt: "How artificial intelligence is tailoring learning experiences for students worldwide.", imageUrl: "https://picsum.photos/seed/blogpost3/400/250", imageHint: "digital learning", category: "Case Studies", date: "2024-07-22", author: "Venkatesh S." },
-  { id: "4", title: "Navigating Ethical AI Development", slug: "navigating-ethical-ai", excerpt: "Key considerations for building responsible and ethical AI systems.", imageUrl: "https://picsum.photos/seed/blogpost4/400/250", imageHint: "ethics compass", category: "Industry Insights", date: "2024-07-19", author: "Venkatesh S." },
-];
-
-const blogCategories = [
-  { name: "AI News", slug: "ai-news", description: "Latest updates and breakthroughs in the world of AI." },
-  { name: "Tutorials", slug: "tutorials", description: "Step-by-step guides to learn new AI skills." },
-  { name: "Case Studies", slug: "case-studies", description: "Real-world applications and successes of AI." },
-  { name: "Industry Insights", slug: "industry-insights", description: "Expert perspectives on AI trends and impacts." },
-  { name: "How-To Guides", slug: "how-to-guides", description: "Practical instructions for AI tools and techniques." },
-];
+export const metadata: Metadata = {
+  title: "Blog - Venkatesh Shivandi",
+  description: "Articles and insights on AI, machine learning, and software development.",
+};
 
 export default function BlogPage() {
+  const posts = getAllPosts();
+
   return (
-    <SectionWrapper id="blog-page" title="Venkatesh.ai Blog" subtitle="Insights, Tutorials, and News on Artificial Intelligence">
-      
-      {/* Recent Posts Section */}
-      <div className="mb-16">
-        <h2 className="text-3xl font-semibold text-foreground mb-8">Recent Posts</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {recentPosts.slice(0,3).map((post) => ( // Show first 3 recent posts
-            <Card key={post.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
-              <CardHeader className="p-0">
-                <Link href={`/blog/${post.slug}`} className="block">
-                  <div className="relative w-full h-48">
-                    <Image 
-                      src={post.imageUrl} 
-                      alt={post.title} 
-                      layout="fill" 
-                      objectFit="cover" 
-                      data-ai-hint={post.imageHint}
-                      className="transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                </Link>
-              </CardHeader>
-              <CardContent className="flex-grow p-6 space-y-3">
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                  <Tag className="h-3.5 w-3.5" /> <span>{post.category}</span>
-                  <CalendarDays className="h-3.5 w-3.5" /> <span>{post.date}</span>
-                </div>
-                <CardTitle className="text-xl hover:text-primary transition-colors">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground h-20 overflow-hidden">
-                  {post.excerpt}
-                </CardDescription>
-              </CardContent>
-              <div className="p-6 pt-2 flex justify-between items-center">
-                 <div className="flex items-center text-xs text-muted-foreground">
-                    <User className="h-3.5 w-3.5 mr-1.5" /> {post.author}
-                  </div>
-                <Button variant="link" asChild className="p-0 text-primary hover:text-primary/80 text-sm">
-                  <Link href={`/blog/${post.slug}`}>
-                    Read More <ArrowRight className="ml-1 h-4 w-4" />
-                  </Link>
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
+    <div className="container max-w-6xl py-12 px-4 sm:px-6 lg:px-8 mx-auto">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold text-foreground sm:text-5xl mb-3">Blog</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          Thoughts, insights, and explorations in artificial intelligence, machine learning, and software development.
+        </p>
       </div>
 
-      {/* Categories Section */}
-      <div>
-        <h2 className="text-3xl font-semibold text-foreground mb-8">Explore by Category</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogCategories.map((category) => (
-            <Card key={category.slug} className="shadow-md hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-xl text-primary hover:text-primary/90">
-                  <Link href={`/blog/category/${category.slug}`}>{category.name}</Link>
-                </CardTitle>
-                <CardDescription>{category.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/blog/category/${category.slug}`}>
-                    View Posts <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+      {/* Featured Post */}
+      {posts.find(post => post.featured) && (
+        <div className="mb-16">
+          <h2 className="text-2xl font-semibold mb-6 text-primary">Featured Article</h2>
+          <FeaturedPostCard post={posts.find(post => post.featured) as Post} />
+        </div>
+      )}
+
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {posts.filter(post => !post.featured).map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function FeaturedPostCard({ post }: { post: Post }) {
+  return (
+    <Card className="overflow-hidden group transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,206,209,0.3)] dark:hover:shadow-[0_8px_30px_rgba(0,255,255,0.4)]">
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="relative h-64 md:h-full">
+          <Image
+            src={post.coverImage}
+            alt={post.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
+          <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+            <Link href={`/blog/${post.id}`} className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium">
+              Read Article
+            </Link>
+          </div>
+        </div>
+        <div className="p-6">
+          <div className="flex items-center gap-2 mb-2">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+              {post.category}
+            </Badge>
+            <span className="text-sm text-muted-foreground">{formatDate(post.date)}</span>
+          </div>
+          <Link href={`/blog/${post.id}`} className="group-hover:text-primary transition-colors">
+            <h3 className="text-2xl font-bold mb-3">{post.title}</h3>
+          </Link>
+          <p className="text-muted-foreground mb-4 line-clamp-3">{post.excerpt}</p>
+          <div className="flex items-center mt-auto">
+            <div className="h-10 w-10 rounded-full overflow-hidden relative mr-3">
+              <Image 
+                src={post.author.image} 
+                alt={post.author.name}
+                fill
+                className="object-cover" 
+              />
+            </div>
+            <div>
+              <p className="font-medium text-sm">{post.author.name}</p>
+            </div>
+          </div>
         </div>
       </div>
-    </SectionWrapper>
+    </Card>
+  );
+}
+
+function PostCard({ post }: { post: Post }) {
+  return (
+    <Card className="overflow-hidden h-full flex flex-col group transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,206,209,0.2)] dark:hover:shadow-[0_8px_30px_rgba(0,255,255,0.3)]">
+      <div className="relative h-52">
+        <Image
+          src={post.coverImage}
+          alt={post.title}
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        />
+        <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <Link href={`/blog/${post.id}`} className="bg-primary text-primary-foreground px-4 py-2 rounded-md font-medium">
+            Read Article
+          </Link>
+        </div>
+      </div>
+      <CardContent className="p-6 flex-1 flex flex-col">
+        <div className="flex items-center gap-2 mb-2">
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+            {post.category}
+          </Badge>
+          <span className="text-xs text-muted-foreground">{formatDate(post.date)}</span>
+        </div>
+        <Link href={`/blog/${post.id}`} className="group-hover:text-primary transition-colors">
+          <h3 className="text-xl font-bold mb-2">{post.title}</h3>
+        </Link>
+        <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{post.excerpt}</p>
+        <div className="flex items-center mt-auto">
+          <div className="h-8 w-8 rounded-full overflow-hidden relative mr-2">
+            <Image 
+              src={post.author.image} 
+              alt={post.author.name}
+              fill
+              className="object-cover" 
+            />
+          </div>
+          <div>
+            <p className="font-medium text-xs">{post.author.name}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

@@ -82,13 +82,34 @@ export default {
   				to: {
   					height: '0'
   				}
-  			}
+  			},
+        'glow-pulse': {
+          '0%, 100%': {
+            boxShadow: '0 0 15px rgba(0, 206, 209, 0.3)',
+          },
+          '50%': {
+            boxShadow: '0 0 30px rgba(0, 206, 209, 0.6)',
+          }
+        },
+        'glow-pulse-dark': {
+          '0%, 100%': {
+            boxShadow: '0 0 20px rgba(0, 255, 255, 0.4)',
+          },
+          '50%': {
+            boxShadow: '0 0 40px rgba(0, 255, 255, 0.7)',
+          }
+        }
   		},
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
-  			'accordion-up': 'accordion-up 0.2s ease-out'
+  			'accordion-up': 'accordion-up 0.2s ease-out',
+        'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'glow-pulse-dark': 'glow-pulse-dark 3s ease-in-out infinite'
   		}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [
+    require("tailwindcss-animate"),
+    require("@tailwindcss/typography"),
+  ],
 } satisfies Config;

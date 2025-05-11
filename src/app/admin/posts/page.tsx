@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { PlusCircle, Edit, Trash2, EyeIcon } from "lucide-react";
 import Link from "next/link";
 
-// Dummy data for now - replace with Firestore data
+// Dummy data that matches our actual posts
 const dummyPosts = [
-  { id: "1", title: "Understanding Large Language Models", category: "AI News", date: "2024-07-28", status: "Published" },
-  { id: "2", title: "Getting Started with TensorFlow.js", category: "Tutorials", date: "2024-07-25", status: "Draft" },
-  { id: "3", title: "AI in Healthcare: A Case Study", category: "Case Studies", date: "2024-07-22", status: "Published" },
+  { id: "1", title: "The Future of Generative AI", slug: "future-of-generative-ai", category: "AI News", date: "2024-07-28", status: "Published" },
+  { id: "2", title: "A Beginner's Guide to Prompt Engineering", slug: "beginners-guide-prompt-engineering", category: "Tutorials", date: "2024-07-25", status: "Published" },
+  { id: "3", title: "AI in Personalized Education", slug: "ai-in-personalized-education", category: "Case Studies", date: "2024-07-22", status: "Published" },
+  { id: "4", title: "Navigating Ethical AI Development", slug: "navigating-ethical-ai", category: "Industry Insights", date: "2024-07-19", status: "Published" },
 ];
 
 export default function AdminPostsPage() {
@@ -60,7 +61,7 @@ export default function AdminPostsPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                         <Button variant="ghost" size="icon" asChild title="View Post">
-                           <Link href={`/blog/${post.id}`} target="_blank"> {/* Assuming slug is id for now */}
+                           <Link href={`/blog/${post.slug}`} target="_blank">
                             <EyeIcon className="h-4 w-4 text-muted-foreground hover:text-primary" />
                           </Link>
                         </Button>
