@@ -11,13 +11,12 @@ import { ArrowLeft, Calendar, Tag } from "lucide-react";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 
-interface BlogPostPageProps {
-  params: {
-    slug: string;
-  };
-}
+// Define params type
+type Params = {
+  slug: string;
+};
 
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const post = getPostBySlug(params.slug);
   
   if (!post) {
@@ -55,7 +54,8 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function BlogPostPage({ params }: BlogPostPageProps) {
+// Define the page component with the simple params object structure
+export default async function BlogPostPage({ params }: { params: Params }) {
   const post = getPostBySlug(params.slug);
   
   if (!post) {

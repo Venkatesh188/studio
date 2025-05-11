@@ -13,7 +13,7 @@ import { signInWithEmailAndPassword } from '@/lib/firebase/client';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff, GitHub } from 'lucide-react';
+import { Eye, EyeOff, GithubIcon } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -129,7 +129,7 @@ export default function LoginPage() {
               </p>
               <Button variant="outline" size="sm" className="w-full" asChild>
                 <Link href="/admin/">
-                  <GitHub className="mr-2 h-4 w-4" />
+                  <GithubIcon className="mr-2 h-4 w-4" />
                   Netlify CMS with GitHub
                 </Link>
               </Button>

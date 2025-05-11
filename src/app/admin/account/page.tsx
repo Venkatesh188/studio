@@ -11,7 +11,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
-import { GitHub, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
+import { GithubIcon } from 'lucide-react';
 import { safeStorage } from '@/lib/firebase/client';
 
 const passwordSchema = z.object({
@@ -178,7 +179,7 @@ export default function AdminAccountPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <GitHub className="h-5 w-5" />
+              <GithubIcon className="h-5 w-5" />
               GitHub OAuth Integration
             </CardTitle>
             <CardDescription>Connect your admin with GitHub for authentication</CardDescription>
@@ -202,7 +203,7 @@ export default function AdminAccountPage() {
             </p>
             
             <Button variant="outline" className="gap-2" disabled>
-              <GitHub className="h-4 w-4" />
+              <GithubIcon className="h-4 w-4" />
               Connect with GitHub (Coming Soon)
             </Button>
           </CardContent>
