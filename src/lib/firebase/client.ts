@@ -6,6 +6,7 @@ export interface User {
   email: string | null;
   displayName: string | null;
   photoURL: string | null;
+  isAdmin?: boolean;
 }
 
 interface UserCredential {
@@ -20,7 +21,7 @@ interface Auth {
 const STORAGE_KEY = 'studio_mock_user';
 
 // Safe localStorage access
-const safeStorage = {
+export const safeStorage = {
   getItem: (key: string): string | null => {
     if (typeof window !== 'undefined') {
       return localStorage.getItem(key);
@@ -39,6 +40,12 @@ const safeStorage = {
   }
 };
 
+// Default admin credentials - CHANGE AFTER FIRST LOGIN
+const DEFAULT_ADMIN = {
+  email: 'admin@example.com',
+  password: 'admin123'
+};
+
 // Mock auth implementation
 class MockAuth implements Auth {
   currentUser: User | null = null;
@@ -55,6 +62,20 @@ class MockAuth implements Auth {
           setTimeout(() => {
             this.notifyListeners();
           }, 0);
+        }
+        
+        // Initialize default admin in users list if not exists
+        const existingUsers = safeStorage.getItem('mock_users');
+        if (!existingUsers) {
+          const users = {
+            [DEFAULT_ADMIN.email]: { 
+              email: DEFAULT_ADMIN.email, 
+              password: DEFAULT_ADMIN.password,
+              isAdmin: true
+            }
+          };
+          safeStorage.setItem('mock_users', JSON.stringify(users));
+          console.info('Default admin account created. Please change credentials after first login.');
         }
       } catch (error) {
         console.error("Error loading auth state:", error);
@@ -92,32 +113,45 @@ export async function signInWithEmailAndPassword(auth: MockAuth, email: string, 
     throw new Error('auth/invalid-credential');
   }
 
-  // In a real app, we'd validate credentials against a backend
-  // For this mock, we'll accept any non-empty values and create a mock user
+  // Check against stored users
+  const existingUsers = safeStorage.getItem('mock_users');
+  let users: Record<string, {email: string, password: string, isAdmin?: boolean}> = {};
   
-  if (email === 'test@example.com' && password !== 'password') {
+  if (existingUsers) {
+    users = JSON.parse(existingUsers);
+  }
+  
+  // Check if user exists and password matches
+  const user = users[email];
+  if (!user) {
+    throw new Error('auth/user-not-found');
+  }
+  
+  if (user.password !== password) {
     throw new Error('auth/wrong-password');
   }
-
-  const user: User = {
-    uid: 'mock-uid-123',
+  
+  // Create user object
+  const userObj: User = {
+    uid: `mock-uid-${Date.now()}`,
     email: email,
     displayName: email.split('@')[0],
     photoURL: null,
+    isAdmin: user.isAdmin || false
   };
 
   // Store in localStorage to persist across page refreshes
-  safeStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  safeStorage.setItem(STORAGE_KEY, JSON.stringify(userObj));
   
   // Update the auth instance
-  auth.currentUser = user;
+  auth.currentUser = userObj;
   
   // Notify listeners
   if (auth instanceof MockAuth) {
     (auth as any).notifyListeners();
   }
 
-  return { user };
+  return { user: userObj };
 }
 
 // Mock create user function

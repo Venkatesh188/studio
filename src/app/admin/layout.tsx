@@ -11,10 +11,15 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const { user, loading } = useAuth();
   
-  // Redirect if not logged in
+  // Redirect if not logged in or not an admin
   useEffect(() => {
-    if (!loading && !user) {
-      router.push('/login');
+    if (!loading) {
+      if (!user) {
+        router.push('/login');
+      } else if (user && user.isAdmin === false) {
+        // If user is logged in but not an admin
+        router.push('/');
+      }
     }
   }, [loading, user, router]);
 
@@ -27,7 +32,7 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  if (!user) {
+  if (!user || !user.isAdmin) {
     return null; // Will redirect via useEffect
   }
 

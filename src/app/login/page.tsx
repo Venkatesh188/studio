@@ -45,7 +45,7 @@ export default function LoginPage() {
         description: 'Welcome back!',
         variant: 'default',
       });
-      router.push('/'); // Redirect to home page after login instead of admin dashboard
+      router.push('/admin/dashboard'); // Redirect to admin dashboard after login
     } catch (error: any) {
       let errorMessage = "Invalid email or password. Please try again.";
       if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password" || error.code === "auth/invalid-credential") {
