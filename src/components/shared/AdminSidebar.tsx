@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileText, UserCircle, Newspaper, Settings, Tags } from 'lucide-react';
+import { LayoutDashboard, FileText, UserCircle, Newspaper, Settings, Tags, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const adminNavItems = [
@@ -16,6 +16,12 @@ const adminNavItems = [
 
 export default function AdminSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  
+  const handleSignOut = () => {
+    // Redirect to CMS admin for logout 
+    router.push('/admin');
+  };
 
   return (
     <aside className="w-64 bg-card text-card-foreground p-4 space-y-6 border-r border-border flex flex-col min-h-full">
@@ -23,6 +29,7 @@ export default function AdminSidebar() {
         <Link href="/admin/dashboard" className="text-2xl font-bold text-primary">
           Admin Panel
         </Link>
+        <p className="text-xs text-muted-foreground mt-1">Logged in as admin</p>
       </div>
       <nav className="flex-grow">
         <ul className="space-y-2">
@@ -45,8 +52,8 @@ export default function AdminSidebar() {
         </ul>
       </nav>
       <div>
-        <Button variant="outline" className="w-full">
-          Log Out
+        <Button variant="outline" className="w-full" onClick={handleSignOut}>
+          <LogOut className="mr-2 h-4 w-4" /> Log Out
         </Button>
       </div>
     </aside>

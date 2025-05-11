@@ -9,7 +9,14 @@ import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation'; // Import useRouter
 import ThemeSwitcher from './ThemeSwitcher'; // Import ThemeSwitcher
 
-const baseNavItems = [
+type NavItem = {
+  href: string;
+  label: string;
+  icon?: React.ElementType;
+  type?: 'admin';
+};
+
+const baseNavItems: NavItem[] = [
   { href: '#about', label: 'About' },
   { href: '#projects', label: 'Projects' },
   { href: '#blog', label: 'Blog'},
@@ -22,6 +29,10 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
   const router = useRouter(); // Initialize useRouter
+  
+  // Simulate auth state for UI - will always show admin link for now
+  // since we're using Static CMS for actual authentication
+  const hasAdminAccess = true;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,6 +57,7 @@ export default function Header() {
 
   const navItems = [
     ...baseNavItems,
+    ...(hasAdminAccess ? [{ href: '/admin', label: 'Admin', icon: UserCog, type: 'admin' as const }] : []),
   ];
 
   return (
@@ -74,6 +86,21 @@ export default function Header() {
                 </a>
               </Link>
             ))}
+            
+            {!hasAdminAccess ? (
+              <Button variant="ghost" size="sm" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10">
+                <Link href="/admin">
+                  <LogIn className="mr-1.5 h-4 w-4" /> Login
+                </Link>
+              </Button>
+            ) : (
+              <Button variant="ghost" size="sm" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10">
+                <Link href="/admin">
+                  <UserCog className="mr-1.5 h-4 w-4" /> Admin
+                </Link>
+              </Button>
+            )}
+            
             <ThemeSwitcher /> 
           </nav>
 
@@ -101,6 +128,20 @@ export default function Header() {
                       </a>
                     </Link>
                   ))}
+                  
+                  {!hasAdminAccess ? (
+                    <Button variant="ghost" asChild className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
+                      <Link href="/admin">
+                        <LogIn className="mr-2 h-5 w-5" /> Login
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button variant="ghost" asChild className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
+                      <Link href="/admin">
+                        <UserCog className="mr-2 h-5 w-5" /> Admin
+                      </Link>
+                    </Button>
+                  )}
                 </nav>
               </SheetContent>
             </Sheet>
