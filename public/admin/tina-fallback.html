@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TinaCMS Content Manager | Venkatesh.ai</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <script src="https://cdn.jsdelivr.net/npm/react@17/umd/react.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/react-dom@17/umd/react-dom.production.min.js"></script>
+    <!-- TinaCMS styles -->
+    <link rel="stylesheet" href="https://unpkg.com/tinacms@^1.4.3/dist/tinacms.css" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script src="https://unpkg.com/tinacms@^1.4.3/dist/tinacms.js"></script>
+    <script>
+      window.TinaCMS.init({
+        tinaioConfig: {
+          clientId: 'clientIdFromTinaCloud',  // Only needed if using TinaCloud
+          branch: 'master',
+          organization: 'Venkatesh188',
+          productionBranch: 'master',
+        },
+        contentApiUrlOverride: '/api/tina/gql',
+        mediaUrlOverride: '/api/tina/media',
+        schema: {
+          collections: [
+            {
+              name: 'post',
+              label: 'Posts',
+              path: 'content/posts',
+              format: 'md',
+              fields: [
+                {
+                  type: 'string',
+                  name: 'title',
+                  label: 'Title',
+                  isTitle: true,
+                  required: true,
+                },
+                {
+                  type: 'datetime',
+                  name: 'date',
+                  label: 'Date',
+                  required: true,
+                },
+                {
+                  type: 'image',
+                  name: 'coverImage',
+                  label: 'Cover Image',
+                },
+                {
+                  type: 'string',
+                  name: 'excerpt',
+                  label: 'Excerpt',
+                  ui: {
+                    component: 'textarea',
+                  },
+                },
+                {
+                  type: 'object',
+                  name: 'author',
+                  label: 'Author',
+                  fields: [
+                    {
+                      type: 'string',
+                      name: 'name',
+                      label: 'Name',
+                    },
+                    {
+                      type: 'image',
+                      name: 'image',
+                      label: 'Image',
+                    },
+                  ],
+                },
+                {
+                  type: 'string',
+                  name: 'category',
+                  label: 'Category',
+                },
+                {
+                  type: 'string',
+                  name: 'tags',
+                  label: 'Tags',
+                  list: true,
+                },
+                {
+                  type: 'boolean',
+                  name: 'featured',
+                  label: 'Featured',
+                },
+                {
+                  type: 'rich-text',
+                  name: 'body',
+                  label: 'Body',
+                  isBody: true,
+                },
+              ],
+            },
+            {
+              name: 'project',
+              label: 'Projects',
+              path: 'content/projects',
+              format: 'md',
+              fields: [
+                {
+                  type: 'string',
+                  name: 'title',
+                  label: 'Title',
+                  isTitle: true,
+                  required: true,
+                },
+                {
+                  type: 'string',
+                  name: 'description',
+                  label: 'Description',
+                  ui: {
+                    component: 'textarea',
+                  },
+                },
+                {
+                  type: 'string',
+                  name: 'problem',
+                  label: 'Problem',
+                  ui: {
+                    component: 'textarea',
+                  },
+                },
+                {
+                  type: 'string',
+                  name: 'tools',
+                  label: 'Tools',
+                  list: true,
+                },
+                {
+                  type: 'string',
+                  name: 'outcome',
+                  label: 'Outcome',
+                  ui: {
+                    component: 'textarea',
+                  },
+                },
+                {
+                  type: 'image',
+                  name: 'imageUrl',
+                  label: 'Image',
+                },
+                {
+                  type: 'string',
+                  name: 'imageHint',
+                  label: 'Image Alt Text',
+                },
+                {
+                  type: 'string',
+                  name: 'liveLink',
+                  label: 'Live Link',
+                },
+                {
+                  type: 'string',
+                  name: 'repoLink',
+                  label: 'Repo Link',
+                },
+                {
+                  type: 'string',
+                  name: 'paperLink',
+                  label: 'Paper Link',
+                },
+                {
+                  type: 'number',
+                  name: 'order',
+                  label: 'Order',
+                },
+              ],
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html> 

@@ -13,8 +13,9 @@
     <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
 
     <script>
-      window.CMS_MANUAL_INIT = true;
+      // Note: Decap CMS does not need manual init - remove that flag
       
+      // Configure Decap CMS
       window.addEventListener('DOMContentLoaded', function() {
         const config = {
           backend: {
@@ -68,7 +69,8 @@
           ]
         };
         
-        window.CMS.init({ config });
+        // Set config for Decap CMS
+        window.CMS.init(config);
       });
       
       // GitHub OAuth configuration
