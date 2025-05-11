@@ -2,34 +2,14 @@
   command = "npm run build"
   publish = "out"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[dev]
-  framework = "next"
-  
-[template.environment]
-  OAUTH_CLIENT_ID = "Set your GitHub OAuth client ID"
-  OAUTH_CLIENT_SECRET = "Set your GitHub OAuth client secret"
-
-# Identity settings
 [build.environment]
   NODE_VERSION = "18"
   NPM_FLAGS = "--legacy-peer-deps"
 
-# Enable Netlify Identity
-[template.environment]
-  NETLIFY_IDENTITY_ENABLED = "true"
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
 
-# Configure for static site with SPA routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
-  status = 200
-
-# GitHub OAuth settings
-[[headers]]
-  for = "/admin/*"
-  [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block" 
+  status = 200 
