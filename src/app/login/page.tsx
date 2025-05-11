@@ -13,7 +13,7 @@ import { signInWithEmailAndPassword } from '@/lib/firebase/client';
 import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, GitHub } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email." }),
@@ -120,6 +120,21 @@ export default function LoginPage() {
               Sign up
             </Link>
           </p>
+          
+          <div className="mt-8 pt-6 border-t border-border">
+            <h3 className="text-sm font-medium mb-2">Alternative Admin Options</h3>
+            <div className="rounded-md bg-primary/5 p-4">
+              <p className="text-xs text-muted-foreground mb-2">
+                You can also use our Netlify CMS admin with GitHub authentication:
+              </p>
+              <Button variant="outline" size="sm" className="w-full" asChild>
+                <Link href="/admin/">
+                  <GitHub className="mr-2 h-4 w-4" />
+                  Netlify CMS with GitHub
+                </Link>
+              </Button>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </div>

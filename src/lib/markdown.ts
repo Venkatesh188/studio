@@ -6,6 +6,7 @@ import html from 'remark-html';
 import remarkGfm from 'remark-gfm';
 
 const postsDirectory = path.join(process.cwd(), 'content/posts');
+const projectsDirectory = path.join(process.cwd(), 'content/projects');
 
 export type PostMeta = {
   id: string;
@@ -26,13 +27,35 @@ export type Post = PostMeta & {
   content: string;
 };
 
+export type ProjectMeta = {
+  id: string;
+  title: string;
+  description: string;
+  problem: string;
+  tools: string[];
+  outcome: string;
+  imageUrl: string;
+  imageHint: string;
+  liveLink?: string;
+  repoLink?: string;
+  paperLink?: string;
+  order: number;
+};
+
 export function getPostSlugs() {
   try {
-    return fs.readdirSync(postsDirectory)
-      .filter(file => file.endsWith('.md'))
-      .map(file => file.replace(/\.md$/, ''));
+    return fs.readdirSync(postsDirectory).filter(file => file.endsWith('.md')).map(file => file.replace(/\.md$/, ''));
   } catch (error) {
-    console.error('Error reading post slugs:', error);
+    console.error('Error reading post directory:', error);
+    return [];
+  }
+}
+
+export function getProjectSlugs() {
+  try {
+    return fs.readdirSync(projectsDirectory).filter(file => file.endsWith('.md')).map(file => file.replace(/\.md$/, ''));
+  } catch (error) {
+    console.error('Error reading projects directory:', error);
     return [];
   }
 }
@@ -69,9 +92,40 @@ export function getPostBySlug(slug: string): Post | null {
   }
 }
 
+export function getProjectBySlug(slug: string): ProjectMeta | null {
+  try {
+    const fullPath = path.join(projectsDirectory, `${slug}.md`);
+    
+    if (!fs.existsSync(fullPath)) {
+      return null;
+    }
+    
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
+    const { data } = matter(fileContents);
+    
+    return {
+      id: slug,
+      title: data.title || 'Untitled Project',
+      description: data.description || '',
+      problem: data.problem || '',
+      tools: data.tools || [],
+      outcome: data.outcome || '',
+      imageUrl: data.imageUrl || 'https://picsum.photos/seed/picsum/400/250',
+      imageHint: data.imageHint || '',
+      liveLink: data.liveLink || undefined,
+      repoLink: data.repoLink || undefined, 
+      paperLink: data.paperLink || undefined,
+      order: data.order || 0,
+    };
+  } catch (error) {
+    console.error(`Error reading project ${slug}:`, error);
+    return null;
+  }
+}
+
 export async function markdownToHtml(markdown: string) {
   const result = await remark()
-    .use(html, { sanitize: false })
+    .use(html)
     .use(remarkGfm)
     .process(markdown);
   return result.toString();
@@ -87,6 +141,20 @@ export function getAllPosts(): Post[] {
     return posts;
   } catch (error) {
     console.error('Error getting all posts:', error);
+    return [];
+  }
+}
+
+export function getAllProjects(): ProjectMeta[] {
+  try {
+    const slugs = getProjectSlugs();
+    const projects = slugs
+      .map(slug => getProjectBySlug(slug))
+      .filter((project): project is ProjectMeta => project !== null)
+      .sort((a, b) => a.order - b.order);
+    return projects;
+  } catch (error) {
+    console.error('Error getting all projects:', error);
     return [];
   }
 }

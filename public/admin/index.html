@@ -1,18 +1,27 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
   <head>
-    <meta charset="utf-8">
-    <title>Admin Panel</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://unpkg.com/@staticcms/app@^4.0.0/dist/static-cms-app.js"></script>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Content Manager | Venkatesh.ai</title>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <!-- Include Netlify Identity for authentication -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
+    <!-- Include the Netlify CMS -->
+    <script src="https://unpkg.com/netlify-cms@^2.0.0/dist/netlify-cms.js"></script>
     <script>
-      window.CMS_MANUAL_INIT = true;
-      window.addEventListener('DOMContentLoaded', function() {
-        window.StaticCms.init();
-      });
+      // Initialize the GitHub OAuth backend
+      if (window.netlifyIdentity) {
+        window.netlifyIdentity.on("init", (user) => {
+          if (!user) {
+            window.netlifyIdentity.on("login", () => {
+              document.location.href = "/admin/";
+            });
+          }
+        });
+      }
     </script>
-    <div id="nc-root"></div>
   </body>
 </html> 

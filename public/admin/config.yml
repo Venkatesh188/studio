@@ -18,6 +18,29 @@ collections:
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Publish Date", name: "date", widget: "datetime" }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Cover Image", name: "coverImage", widget: "image", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
+      - { label: "Author Name", name: "author.name", widget: "string", default: "Venkatesh Shivandi" }
+      - { label: "Author Image", name: "author.image", widget: "image", default: "https://picsum.photos/seed/author/100/100", required: false }
+      - { label: "Category", name: "category", widget: "string", default: "Technology" }
       - { label: "Tags", name: "tags", widget: "list", required: false }
-      - { label: "Image", name: "image", widget: "image", required: false } 
+      - { label: "Featured Post", name: "featured", widget: "boolean", default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+      
+  - name: "projects"
+    label: "Projects"
+    folder: "content/projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Problem", name: "problem", widget: "text" }
+      - { label: "Tools", name: "tools", widget: "list" }
+      - { label: "Outcome", name: "outcome", widget: "text" }
+      - { label: "Image", name: "imageUrl", widget: "image" }
+      - { label: "Image Alt Text", name: "imageHint", widget: "string" }
+      - { label: "Live Link", name: "liveLink", widget: "string", required: false }
+      - { label: "Repo Link", name: "repoLink", widget: "string", required: false }
+      - { label: "Paper Link", name: "paperLink", widget: "string", required: false }
+      - { label: "Order", name: "order", widget: "number", default: 0 } 
