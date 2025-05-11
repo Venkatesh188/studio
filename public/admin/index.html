@@ -9,13 +9,12 @@
     <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
   </head>
   <body>
-    <!-- Include Decap CMS (formerly Netlify CMS) -->
-    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+    <!-- Include Static CMS (works better with React 18) -->
+    <script src="https://unpkg.com/@staticcms/app@^4.0.0/dist/static-cms-app.js"></script>
 
     <script>
-      // Note: Decap CMS does not need manual init - remove that flag
+      window.CMS_MANUAL_INIT = true;
       
-      // Configure Decap CMS
       window.addEventListener('DOMContentLoaded', function() {
         const config = {
           backend: {
@@ -69,8 +68,7 @@
           ]
         };
         
-        // Set config for Decap CMS
-        window.CMS.init(config);
+        window.StaticCms.init({ config });
       });
       
       // GitHub OAuth configuration
