@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -7,9 +6,6 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Menu, CodeXml, LogIn, UserCog, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/hooks/use-auth';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase/client';
 import { useRouter } from 'next/navigation'; // Import useRouter
 import ThemeSwitcher from './ThemeSwitcher'; // Import ThemeSwitcher
 
@@ -25,19 +21,7 @@ const baseNavItems = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const { user, loading } = useAuth();
   const router = useRouter(); // Initialize useRouter
-
-  const handleSignOut = async () => {
-    try {
-      await signOut(auth);
-      router.push('/login'); // Redirect to login after sign out
-      // Optionally, show a toast message for successful logout
-    } catch (error) {
-      console.error("Error signing out: ", error);
-      // Handle error
-    }
-  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,7 +46,6 @@ export default function Header() {
 
   const navItems = [
     ...baseNavItems,
-    ...(user ? [{ href: '/admin/dashboard', label: 'Admin', icon: UserCog, type: 'admin' as const }] : []),
   ];
 
   return (
@@ -91,19 +74,6 @@ export default function Header() {
                 </a>
               </Link>
             ))}
-            {!loading && (
-              user ? (
-                <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-foreground/80 hover:text-primary hover:bg-primary/10">
-                  <LogOut className="mr-1.5 h-4 w-4" /> Logout
-                </Button>
-              ) : (
-                <Button variant="ghost" size="sm" asChild className="text-foreground/80 hover:text-primary hover:bg-primary/10">
-                  <Link href="/login">
-                    <LogIn className="mr-1.5 h-4 w-4" /> Login
-                  </Link>
-                </Button>
-              )
-            )}
             <ThemeSwitcher /> 
           </nav>
 
@@ -131,19 +101,6 @@ export default function Header() {
                       </a>
                     </Link>
                   ))}
-                   {!loading && (
-                    user ? (
-                      <Button variant="ghost" onClick={handleSignOut} className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
-                        <LogOut className="mr-2 h-5 w-5" /> Logout
-                      </Button>
-                    ) : (
-                       <Button variant="ghost" asChild className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
-                        <Link href="/login">
-                          <LogIn className="mr-2 h-5 w-5" /> Login
-                        </Link>
-                      </Button>
-                    )
-                  )}
                 </nav>
               </SheetContent>
             </Sheet>
