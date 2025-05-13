@@ -1,3 +1,4 @@
+
 'use client';
 
 import SectionWrapper from "@/components/shared/SectionWrapper";
@@ -10,29 +11,7 @@ import { useEffect, useState } from "react";
 import { getPostBySlug as getPostBySlugFromStorage } from "@/lib/post-manager";
 import type { Post } from "@/types/post";
 import { useParams } from "next/navigation";
-
-// Basic markdown to HTML conversion (very simplified)
-const renderMarkdown = (markdown: string) => {
-  if (!markdown) return [];
-  return markdown
-    .split('\n\n').map((paragraph, i) => {
-      if (paragraph.startsWith('### ')) {
-        return <h3 key={i} className="text-xl font-semibold mt-6 mb-2 text-foreground">{paragraph.substring(4)}</h3>;
-      }
-      if (paragraph.startsWith('## ')) {
-        return <h2 key={i} className="text-2xl font-semibold mt-8 mb-3 text-foreground">{paragraph.substring(3)}</h2>;
-      }
-      if (paragraph.startsWith('- ')) {
-          const items = paragraph.split('\n').map(item => item.substring(2));
-          return <ul key={i} className="list-disc list-inside space-y-1 my-4 ml-4 text-foreground/90">{items.map((li, idx) => <li key={idx}>{li}</li>)}</ul>
-      }
-      if (paragraph.match(/^\d+\.\s/)) { // Matches "1. ", "2. ", etc.
-           const items = paragraph.split('\n').map(item => item.replace(/^\d+\.\s/, ''));
-          return <ol key={i} className="list-decimal list-inside space-y-1 my-4 ml-4 text-foreground/90">{items.map((li, idx) => <li key={idx}>{li}</li>)}</ol>
-      }
-      return <p key={i} className="text-foreground/90 leading-relaxed my-4">{paragraph}</p>;
-    }).reduce((acc: JSX.Element[], elem) => acc.concat(elem), []);
-};
+import { renderMarkdown } from "@/lib/markdownRenderer"; // Import the centralized renderer
 
 const categoriesMap: { [key: string]: string } = {
   "ai-news": "AI News",
@@ -45,7 +24,7 @@ const categoriesMap: { [key: string]: string } = {
 
 export default function BlogPostPage() {
   const params = useParams();
-  const slug = params.slug as string;
+  const slug = params ? (params.slug as string) : ''; // Ensure params is defined
   const [post, setPost] = useState<Post | null | undefined>(undefined); // undefined for loading, null for not found
 
   useEffect(() => {
@@ -56,6 +35,8 @@ export default function BlogPostPage() {
       } else {
         setPost(null); // Not found or not published
       }
+    } else {
+      setPost(null); // No slug provided
     }
   }, [slug]);
 
@@ -104,8 +85,8 @@ export default function BlogPostPage() {
             <Image 
                 src={post.coverImage || post.imageUrl || "https://picsum.photos/seed/defaultpost/800/400"} 
                 alt={post.title} 
-                layout="fill" 
-                objectFit="cover" 
+                fill={true}
+                style={{objectFit: "cover"}}
                 data-ai-hint={post.imageHint || "tech article"}
             />
           </div>
@@ -137,16 +118,3 @@ export default function BlogPostPage() {
     </SectionWrapper>
   );
 }
-
-// Note: generateStaticParams might need adjustments if you want fully static generation with localStorage.
-// For dynamic fetching with localStorage, this client-side approach is more straightforward.
-// For true SSG/ISR with dynamic content, a build-time data source or API is needed.
-// export async function generateStaticParams() {
-//   // This would need to access localStorage at build time, which is not possible.
-//   // For a real static site, posts would come from a CMS or files.
-//   // Example: const posts = await fetchPostsFromCMS();
-//   const posts = typeof window !== 'undefined' ? getAllPosts().filter(p => p.published) : [];
-//   return posts.map((post) => ({
-//     slug: post.slug,
-//   }));
-// }

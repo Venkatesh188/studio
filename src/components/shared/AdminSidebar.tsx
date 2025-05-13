@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileText, UserCircle, Newspaper, Settings, Tags, LogOut } from 'lucide-react';
+import { LayoutDashboard, UserCircle, Newspaper, Settings, LogOut, Briefcase, Info } from 'lucide-react'; // Added Briefcase, Info
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/use-auth'; 
 import { useRouter } from 'next/navigation';
@@ -12,8 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 
 const adminNavItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/admin/posts', label: 'Posts', icon: Newspaper },
-  // { href: '/admin/categories', label: 'Categories', icon: Tags }, // Future addition
+  { href: '/admin/posts', label: 'Blog Posts', icon: Newspaper },
+  { href: '/admin/projects', label: 'Projects', icon: Briefcase },
+  { href: '/admin/about', label: 'About Page', icon: Info },
   { href: '/admin/account', label: 'Account', icon: UserCircle },
   // { href: '/admin/settings', label: 'Settings', icon: Settings }, // Future addition
 ];
@@ -21,7 +22,7 @@ const adminNavItems = [
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, signOut: authSignOut } = useAuth(); // Get user and signOut from new useAuth
+  const { user, signOut: authSignOut } = useAuth();
   const { toast } = useToast();
 
   const handleSignOut = async () => {
@@ -65,6 +66,9 @@ export default function AdminSidebar() {
         </ul>
       </nav>
       <div>
+         <Button variant="outline" className="w-full mb-2" asChild>
+          <Link href="/" target="_blank">View Website</Link>
+        </Button>
         <Button variant="outline" className="w-full" onClick={handleSignOut}>
           <LogOut className="mr-2 h-4 w-4" /> Log Out
         </Button>
