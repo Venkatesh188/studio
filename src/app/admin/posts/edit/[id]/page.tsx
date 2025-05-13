@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 import { Switch } from "@/components/ui/switch";
 import { getPostById, updatePost as updatePostInStorage } from "@/lib/post-manager";
 import type { Post, Category } from "@/types/post";
@@ -72,6 +73,19 @@ export default function EditPostPage() {
     }
   }, [postId, form, router, toast]);
 
+  const handleMarkdownUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        form.setValue("content", text, { shouldValidate: true });
+        toast({ title: "Markdown Loaded", description: "Content from MD file loaded into editor." });
+      };
+      reader.readAsText(file);
+    }
+  };
+
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
     try {
       const updatedPost = updatePostInStorage(postId, data);
@@ -114,7 +128,7 @@ export default function EditPostPage() {
     <div className="space-y-8">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">Edit Post</h1>
-        <p className="text-muted-foreground">Update the details for your blog post or tutorial.</p>
+        <p className="text-muted-foreground">Update the details for your blog post or tutorial. You can also upload a Markdown file for the content.</p>
       </header>
 
       <Card>
@@ -166,8 +180,13 @@ export default function EditPostPage() {
             </div>
 
             <div>
+              <Label htmlFor="markdownUpload">Upload Markdown File (Optional)</Label>
+              <Input id="markdownUpload" type="file" accept=".md,.markdown" onChange={handleMarkdownUpload} className="mt-1 file:text-primary file:font-medium" />
+            </div>
+
+            <div>
               <Label htmlFor="content">Content (Markdown supported)</Label>
-              <Textarea id="content" {...form.register("content")} rows={10} className="mt-1" />
+              <Textarea id="content" {...form.register("content")} rows={15} className="mt-1" />
               {form.formState.errors.content && <p className="text-sm text-destructive mt-1">{form.formState.errors.content.message}</p>}
             </div>
 

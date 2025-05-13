@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -14,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { createPost as createPostInStorage } from "@/lib/post-manager";
 import type { Category } from "@/types/post";
+import type { ChangeEvent } from "react";
 
 
 const categories: Category[] = [
@@ -52,6 +54,19 @@ export default function NewPostPage() {
     },
   });
 
+  const handleMarkdownUpload = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        form.setValue("content", text, { shouldValidate: true });
+        toast({ title: "Markdown Loaded", description: "Content from MD file loaded into editor." });
+      };
+      reader.readAsText(file);
+    }
+  };
+
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
     try {
       const newPost = createPostInStorage(data);
@@ -81,7 +96,7 @@ export default function NewPostPage() {
       <Card>
         <CardHeader>
           <CardTitle>Post Details</CardTitle>
-          <CardDescription>Enter the content and metadata for your post.</CardDescription>
+          <CardDescription>Enter the content and metadata for your post. You can also upload a Markdown file for the content.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -127,8 +142,13 @@ export default function NewPostPage() {
             </div>
 
             <div>
+              <Label htmlFor="markdownUpload">Upload Markdown File (Optional)</Label>
+              <Input id="markdownUpload" type="file" accept=".md,.markdown" onChange={handleMarkdownUpload} className="mt-1 file:text-primary file:font-medium" />
+            </div>
+
+            <div>
               <Label htmlFor="content">Content (Markdown supported)</Label>
-              <Textarea id="content" {...form.register("content")} rows={10} className="mt-1" />
+              <Textarea id="content" {...form.register("content")} rows={15} className="mt-1" />
               {form.formState.errors.content && <p className="text-sm text-destructive mt-1">{form.formState.errors.content.message}</p>}
             </div>
 
