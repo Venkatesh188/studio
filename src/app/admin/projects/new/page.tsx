@@ -17,16 +17,16 @@ import { createProject as createProjectInStorage } from "@/lib/project-manager";
 const projectSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
-  description: z.string().min(20, { message: "Description must be at least 20 characters (Markdown)." }),
-  problem: z.string().min(20, { message: "Problem statement must be at least 20 characters (Markdown)." }),
-  tools: z.string().min(1, {message: "Please list at least one tool, comma-separated."}), // Stored as comma-separated string, converted to array on submit
-  outcome: z.string().min(20, { message: "Outcome must be at least 20 characters (Markdown)." }),
+  description: z.string().min(20, { message: "Description must be at least 20 characters (HTML supported)." }),
+  problem: z.string().min(20, { message: "Problem statement must be at least 20 characters (HTML supported)." }),
+  tools: z.string().min(1, {message: "Please list at least one tool, comma-separated."}), 
+  outcome: z.string().min(20, { message: "Outcome must be at least 20 characters (HTML supported)." }),
   imageUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   imageHint: z.string().optional(),
   liveLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   repoLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   published: z.boolean().default(false),
-  tags: z.string().optional(), // Stored as comma-separated string, converted to array on submit
+  tags: z.string().optional(), 
 });
 
 type ProjectFormValues = z.infer<typeof projectSchema>;
@@ -81,11 +81,11 @@ export default function NewProjectPage() {
     form.setValue("title", title);
     const slug = title
       .toLowerCase()
-      .replace(/\s+/g, "-") // Replace spaces with -
-      .replace(/[^\w-]+/g, "") // Remove all non-word chars
-      .replace(/--+/g, "-") // Replace multiple - with single -
-      .replace(/^-+/, "") // Trim - from start of text
-      .replace(/-+$/, ""); // Trim - from end of text
+      .replace(/\s+/g, "-") 
+      .replace(/[^\w-]+/g, "") 
+      .replace(/--+/g, "-") 
+      .replace(/^-+/, "") 
+      .replace(/-+$/, ""); 
     form.setValue("slug", slug, { shouldValidate: true });
   };
 
@@ -100,7 +100,7 @@ export default function NewProjectPage() {
       <Card>
         <CardHeader>
           <CardTitle>Project Details</CardTitle>
-          <CardDescription>Enter the information for your project. Use Markdown for text fields.</CardDescription>
+          <CardDescription>Enter the information for your project. Use HTML for description, problem, and outcome fields.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -117,14 +117,14 @@ export default function NewProjectPage() {
             </div>
             
             <div>
-              <Label htmlFor="description">Description (Markdown)</Label>
-              <Textarea id="description" {...form.register("description")} rows={5} className="mt-1" />
+              <Label htmlFor="description">Description (HTML supported)</Label>
+              <Textarea id="description" {...form.register("description")} rows={5} className="mt-1" placeholder="Enter project description. Use HTML for formatting." />
               {form.formState.errors.description && <p className="text-sm text-destructive mt-1">{form.formState.errors.description.message}</p>}
             </div>
 
             <div>
-              <Label htmlFor="problem">Problem Statement (Markdown)</Label>
-              <Textarea id="problem" {...form.register("problem")} rows={3} className="mt-1" />
+              <Label htmlFor="problem">Problem Statement (HTML supported)</Label>
+              <Textarea id="problem" {...form.register("problem")} rows={3} className="mt-1" placeholder="Describe the problem this project solves. Use HTML for formatting." />
               {form.formState.errors.problem && <p className="text-sm text-destructive mt-1">{form.formState.errors.problem.message}</p>}
             </div>
 
@@ -135,8 +135,8 @@ export default function NewProjectPage() {
             </div>
 
             <div>
-              <Label htmlFor="outcome">Outcome (Markdown)</Label>
-              <Textarea id="outcome" {...form.register("outcome")} rows={3} className="mt-1" />
+              <Label htmlFor="outcome">Outcome (HTML supported)</Label>
+              <Textarea id="outcome" {...form.register("outcome")} rows={3} className="mt-1" placeholder="Describe the outcome or results. Use HTML for formatting." />
               {form.formState.errors.outcome && <p className="text-sm text-destructive mt-1">{form.formState.errors.outcome.message}</p>}
             </div>
 
@@ -198,4 +198,3 @@ export default function NewProjectPage() {
     </div>
   );
 }
-

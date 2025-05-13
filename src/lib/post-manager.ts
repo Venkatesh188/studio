@@ -1,10 +1,10 @@
+
 'use client';
 
 import type { Post } from '@/types/post';
 
 const POSTS_STORAGE_KEY = 'blogPosts';
 
-// Helper to get posts from localStorage
 const getPostsFromStorage = (): Post[] => {
   if (typeof window === 'undefined') {
     return [];
@@ -18,7 +18,6 @@ const getPostsFromStorage = (): Post[] => {
   }
 };
 
-// Helper to save posts to localStorage
 const savePostsToStorage = (posts: Post[]): void => {
   if (typeof window === 'undefined') {
     return;
@@ -30,24 +29,23 @@ const savePostsToStorage = (posts: Post[]): void => {
   }
 };
 
-// Initialize with dummy data if localStorage is empty
 const initializeDummyPosts = () => {
   if (typeof window !== 'undefined' && !localStorage.getItem(POSTS_STORAGE_KEY)) {
     const dummyPosts: Post[] = [
-      { id: "1", slug: "understanding-llms", title: "Understanding Large Language Models", category: "ai-news", content: "Detailed content here exploring the architecture and applications of LLMs. LLMs are a type of AI model that can process and generate human-like text. They are trained on massive datasets of text and code.", excerpt: "Short summary about LLMs and their growing importance.", coverImage: "https://picsum.photos/seed/llm/400/200", published: true, date: "2024-07-28", author: "Venkatesh S.", tags: ["LLM", "AI", "NLP"] },
-      { id: "2", slug: "tfjs-tutorial", title: "Getting Started with TensorFlow.js", category: "tutorials", content: "This tutorial will guide you through setting up your first TensorFlow.js project. TensorFlow.js is an open-source library that allows you to define, train, and run machine learning models in JavaScript.", excerpt: "A beginner-friendly guide to TensorFlow.js for web developers.", coverImage: "https://picsum.photos/seed/tfjs/400/200", published: false, date: "2024-07-25", author: "Venkatesh S.", tags: ["TensorFlow.js", "JavaScript", "Machine Learning"] },
-      { id: "3", slug: "ai-in-healthcare", title: "AI in Healthcare: A Case Study", category: "case-studies", content: "Exploring a real-world case study of AI application in diagnosing diseases. AI is revolutionizing healthcare by improving diagnostic accuracy, personalizing treatments, and streamlining administrative tasks.", excerpt: "How AI is transforming diagnostics and patient care.", coverImage: "https://picsum.photos/seed/aihealth/400/200", published: true, date: "2024-07-22", author: "Venkatesh S.", tags: ["AI", "Healthcare", "Case Study"] },
-      { id: "4", slug: "future-of-generative-ai", title: "The Future of Generative AI", content: "This is the full content for 'The Future of Generative AI'. It explores upcoming trends and impacts of generative AI models across industries. \n\nGenerative AI is rapidly evolving... \n\n## Key Trends\n\n- Trend 1: Increased model capabilities and accessibility.\n- Trend 2: Integration into various software and platforms.\n\n## Conclusion\n\nThe future is exciting and full of possibilities!", imageUrl: "https://picsum.photos/seed/blogdetail1/800/400", imageHint: "futuristic ai", category: "ai-news", date: "2024-07-28", author: "Venkatesh S.", tags: ["Generative AI", "Future Tech", "Machine Learning"], published: true, excerpt: "Exploring upcoming trends and impacts of generative AI models.", coverImage: "https://picsum.photos/seed/genai/400/250" },
-      { id: "5", slug: "beginners-guide-prompt-engineering", title: "A Beginner's Guide to Prompt Engineering", content: "Full content for 'A Beginner's Guide to Prompt Engineering'. Learn the art of crafting effective prompts for better AI-generated results. \n\n### What is Prompt Engineering?\n\nIt's the process of structuring text that can be interpreted and understood by a generative AI model. \n\n### Best Practices\n\n1. Be specific and clear in your instructions.\n2. Provide context and examples when necessary.\n3. Iterate on your prompts to refine the output.", imageUrl: "https://picsum.photos/seed/blogdetail2/800/400", imageHint: "coding tutorial", category: "tutorials", date: "2024-07-25", author: "Venkatesh S.", tags: ["Prompt Engineering", "AI Beginners", "Tutorial"], published: true, excerpt: "Learn the art of crafting effective prompts for better AI-generated results.", coverImage: "https://picsum.photos/seed/prompt/400/250" },
-      { id: "6", slug: "ai-in-personalized-education", title: "AI in Personalized Education", category: "case-studies", content: "Exploring how AI tailors learning experiences for students. This includes adaptive learning platforms, intelligent tutoring systems, and personalized content recommendations. \n\n## Benefits\n\n- Improved student engagement.\n- Better learning outcomes.\n- Catering to individual learning paces.", excerpt: "How artificial intelligence is tailoring learning experiences for students worldwide.", coverImage: "https://picsum.photos/seed/aiedu/400/250", published: true, date: "2024-07-22", author: "Venkatesh S.", tags: ["AI", "Education", "Personalization"] },
-      { id: "7", slug: "navigating-ethical-ai", title: "Navigating Ethical AI Development", category: "industry-insights", content: "Key considerations for building responsible and ethical AI systems. This involves addressing bias, ensuring transparency, and maintaining accountability. \n\n### Core Principles\n\n- Fairness: AI systems should treat all individuals equitably.\n- Accountability: Mechanisms for responsibility when AI systems make errors.\n- Transparency: Understanding how AI models arrive at their decisions.", excerpt: "Key considerations for building responsible and ethical AI systems.", coverImage: "https://picsum.photos/seed/ethicsai/400/250", published: true, date: "2024-07-19", author: "Venkatesh S.", tags: ["Ethical AI", "AI Governance", "Responsible AI"] },
+      { id: "1", slug: "understanding-llms", title: "Understanding Large Language Models", category: "ai-news", content: "<p>Detailed content here exploring the architecture and applications of LLMs. LLMs are a type of AI model that can process and generate human-like text. They are trained on massive datasets of text and code.</p>", excerpt: "Short summary about LLMs and their growing importance.", coverImage: "https://picsum.photos/seed/llm/400/200", published: true, date: "2024-07-28", author: "Venkatesh S.", tags: ["LLM", "AI", "NLP"] },
+      { id: "2", slug: "tfjs-tutorial", title: "Getting Started with TensorFlow.js", category: "tutorials", content: "<p>This tutorial will guide you through setting up your first TensorFlow.js project. TensorFlow.js is an open-source library that allows you to define, train, and run machine learning models in JavaScript.</p>", excerpt: "A beginner-friendly guide to TensorFlow.js for web developers.", coverImage: "https://picsum.photos/seed/tfjs/400/200", published: false, date: "2024-07-25", author: "Venkatesh S.", tags: ["TensorFlow.js", "JavaScript", "Machine Learning"] },
+      { id: "3", slug: "ai-in-healthcare", title: "AI in Healthcare: A Case Study", category: "case-studies", content: "<p>Exploring a real-world case study of AI application in diagnosing diseases. AI is revolutionizing healthcare by improving diagnostic accuracy, personalizing treatments, and streamlining administrative tasks.</p>", excerpt: "How AI is transforming diagnostics and patient care.", coverImage: "https://picsum.photos/seed/aihealth/400/200", published: true, date: "2024-07-22", author: "Venkatesh S.", tags: ["AI", "Healthcare", "Case Study"] },
+      { id: "4", slug: "future-of-generative-ai", title: "The Future of Generative AI", content: "<p>This is the full content for 'The Future of Generative AI'. It explores upcoming trends and impacts of generative AI models across industries.</p><p>Generative AI is rapidly evolving...</p><h2>Key Trends</h2><ul><li>Trend 1: Increased model capabilities and accessibility.</li><li>Trend 2: Integration into various software and platforms.</li></ul><h3>Conclusion</h3><p>The future is exciting and full of possibilities!</p>", imageUrl: "https://picsum.photos/seed/blogdetail1/800/400", imageHint: "futuristic ai", category: "ai-news", date: "2024-07-28", author: "Venkatesh S.", tags: ["Generative AI", "Future Tech", "Machine Learning"], published: true, excerpt: "Exploring upcoming trends and impacts of generative AI models.", coverImage: "https://picsum.photos/seed/genai/400/250" },
+      { id: "5", slug: "beginners-guide-prompt-engineering", title: "A Beginner's Guide to Prompt Engineering", content: "<p>Full content for 'A Beginner's Guide to Prompt Engineering'. Learn the art of crafting effective prompts for better AI-generated results.</p><h3>What is Prompt Engineering?</h3><p>It's the process of structuring text that can be interpreted and understood by a generative AI model.</p><h3>Best Practices</h3><ol><li>Be specific and clear in your instructions.</li><li>Provide context and examples when necessary.</li><li>Iterate on your prompts to refine the output.</li></ol>", imageUrl: "https://picsum.photos/seed/blogdetail2/800/400", imageHint: "coding tutorial", category: "tutorials", date: "2024-07-25", author: "Venkatesh S.", tags: ["Prompt Engineering", "AI Beginners", "Tutorial"], published: true, excerpt: "Learn the art of crafting effective prompts for better AI-generated results.", coverImage: "https://picsum.photos/seed/prompt/400/250" },
+      { id: "6", slug: "ai-in-personalized-education", title: "AI in Personalized Education", category: "case-studies", content: "<p>Exploring how AI tailors learning experiences for students. This includes adaptive learning platforms, intelligent tutoring systems, and personalized content recommendations.</p><h2>Benefits</h2><ul><li>Improved student engagement.</li><li>Better learning outcomes.</li><li>Catering to individual learning paces.</li></ul>", excerpt: "How artificial intelligence is tailoring learning experiences for students worldwide.", coverImage: "https://picsum.photos/seed/aiedu/400/250", published: true, date: "2024-07-22", author: "Venkatesh S.", tags: ["AI", "Education", "Personalization"] },
+      { id: "7", slug: "navigating-ethical-ai", title: "Navigating Ethical AI Development", category: "industry-insights", content: "<p>Key considerations for building responsible and ethical AI systems. This involves addressing bias, ensuring transparency, and maintaining accountability.</p><h3>Core Principles</h3><ul><li>Fairness: AI systems should treat all individuals equitably.</li><li>Accountability: Mechanisms for responsibility when AI systems make errors.</li><li>Transparency: Understanding how AI models arrive at their decisions.</li></ul>", excerpt: "Key considerations for building responsible and ethical AI systems.", coverImage: "https://picsum.photos/seed/ethicsai/400/250", published: true, date: "2024-07-19", author: "Venkatesh S.", tags: ["Ethical AI", "AI Governance", "Responsible AI"] },
 
     ];
     savePostsToStorage(dummyPosts);
   }
 };
 
-initializeDummyPosts(); // Call this once when the module loads
+initializeDummyPosts();
 
 export const getAllPosts = (): Post[] => {
   return getPostsFromStorage();
@@ -67,9 +65,9 @@ export const createPost = (newPostData: Omit<Post, 'id' | 'date' | 'author'>): P
   const posts = getPostsFromStorage();
   const newPost: Post = {
     ...newPostData,
-    id: Date.now().toString(), // Simple unique ID
-    date: new Date().toISOString().split('T')[0], // Current date
-    author: 'Venkatesh S.', // Default author for now
+    id: Date.now().toString(),
+    date: new Date().toISOString().split('T')[0], 
+    author: 'Venkatesh S.', 
   };
   const updatedPosts = [...posts, newPost];
   savePostsToStorage(updatedPosts);
@@ -82,7 +80,7 @@ export const updatePost = (id: string, updatedData: Partial<Post>): Post | undef
   if (postIndex === -1) {
     return undefined;
   }
-  const updatedPost = { ...posts[postIndex], ...updatedData, id }; // Ensure ID is not overwritten
+  const updatedPost = { ...posts[postIndex], ...updatedData, id }; 
   posts[postIndex] = updatedPost;
   savePostsToStorage(posts);
   return updatedPost;

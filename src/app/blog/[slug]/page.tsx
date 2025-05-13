@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { getPostBySlug as getPostBySlugFromStorage } from "@/lib/post-manager";
 import type { Post } from "@/types/post";
 import { useParams } from "next/navigation";
-import { renderMarkdown } from "@/lib/markdownRenderer"; // Import the centralized renderer
+import { RenderHtmlContent } from "@/lib/htmlRenderer"; // Import the HTML renderer
 
 const categoriesMap: { [key: string]: string } = {
   "ai-news": "AI News",
@@ -24,8 +24,8 @@ const categoriesMap: { [key: string]: string } = {
 
 export default function BlogPostPage() {
   const params = useParams();
-  const slug = params ? (params.slug as string) : ''; // Ensure params is defined
-  const [post, setPost] = useState<Post | null | undefined>(undefined); // undefined for loading, null for not found
+  const slug = params ? (params.slug as string) : ''; 
+  const [post, setPost] = useState<Post | null | undefined>(undefined); 
 
   useEffect(() => {
     if (slug) {
@@ -33,14 +33,14 @@ export default function BlogPostPage() {
       if (fetchedPost && fetchedPost.published) {
         setPost({...fetchedPost, categoryName: categoriesMap[fetchedPost.category] || fetchedPost.category});
       } else {
-        setPost(null); // Not found or not published
+        setPost(null); 
       }
     } else {
-      setPost(null); // No slug provided
+      setPost(null); 
     }
   }, [slug]);
 
-  if (post === undefined) { // Loading state
+  if (post === undefined) { 
     return (
       <SectionWrapper id="post-loading" title="Loading Post..." subtitle="Please wait">
         <div className="text-center">
@@ -50,7 +50,7 @@ export default function BlogPostPage() {
     );
   }
 
-  if (!post) { // Not found or not published
+  if (!post) { 
     return (
       <SectionWrapper id="post-not-found" title="Post Not Found" subtitle="Oops!">
         <div className="text-center">
@@ -92,8 +92,8 @@ export default function BlogPostPage() {
           </div>
         )}
 
-        <article className="prose prose-sm sm:prose lg:prose-lg xl:prose-xl max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary hover:prose-a:text-primary/80 prose-strong:text-foreground prose-ul:text-foreground/90 prose-ol:text-foreground/90 dark:prose-invert">
-          {renderMarkdown(post.content)}
+        <article>
+          <RenderHtmlContent htmlString={post.content} />
         </article>
 
         {post.tags && post.tags.length > 0 && (

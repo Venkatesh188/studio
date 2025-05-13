@@ -3,11 +3,11 @@
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import type { AboutContent, Achievement } from "@/types/cms";
+import type { AboutContent } from "@/types/cms"; // Removed Achievement as it's part of AboutContent
 import { getAboutContent } from "@/lib/about-manager";
-import { renderMarkdown } from "@/lib/markdownRenderer";
-import { ICONS } from "@/types/cms"; // Import the ICONS map
-import { Lightbulb, type LucideIcon } from "lucide-react"; // Default icon
+import { RenderHtmlContent } from "@/lib/htmlRenderer"; // Import RenderHtmlContent
+import { ICONS } from "@/types/cms"; 
+import { Lightbulb } from "lucide-react"; 
 
 export default function AboutSection() {
   const [content, setContent] = useState<AboutContent | null>(null);
@@ -31,8 +31,8 @@ export default function AboutSection() {
   return (
     <SectionWrapper id="about" title="About Me" subtitle="Driven AI Professional & Innovator">
       <div className="grid md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6 text-foreground/90 prose prose-sm sm:prose lg:prose-lg dark:prose-invert max-w-none">
-          {renderMarkdown(content.mainText)}
+        <div className="space-y-6 text-foreground/90">
+          <RenderHtmlContent htmlString={content.mainText} />
         </div>
         <div className="relative group">
           <div className="absolute -inset-0.5 bg-gradient-to-r from-primary to-secondary rounded-lg blur opacity-50 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-tilt"></div>
@@ -51,7 +51,7 @@ export default function AboutSection() {
           <h3 className="text-2xl font-semibold text-center mb-8 text-primary">Key Achievements</h3>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {content.achievements.map((achievement) => {
-              const IconComponent = ICONS[achievement.iconName] || Lightbulb; // Fallback to Lightbulb
+              const IconComponent = ICONS[achievement.iconName] || Lightbulb; 
               return (
                 <div key={achievement.id} className="bg-card p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 flex flex-col items-center text-center">
                   <IconComponent className="h-10 w-10 text-primary mb-4" />

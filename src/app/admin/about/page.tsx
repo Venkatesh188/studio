@@ -13,19 +13,19 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { getAboutContent, updateAboutContent } from "@/lib/about-manager";
-import type { AboutContent, Achievement } from "@/types/cms";
-import { ICONS } from "@/types/cms"; // Import the ICONS map
+import type { AboutContent } from "@/types/cms"; // Removed Achievement as it's part of AboutContent
+import { ICONS } from "@/types/cms"; 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trash2, PlusCircle } from "lucide-react";
 
 const achievementSchema = z.object({
-  id: z.string().optional(), // For existing achievements
+  id: z.string().optional(), 
   iconName: z.string().min(1, { message: "Icon is required." }),
   text: z.string().min(10, { message: "Achievement text must be at least 10 characters." }),
 });
 
 const aboutSchema = z.object({
-  mainText: z.string().min(50, { message: "Main text must be at least 50 characters (Markdown)." }),
+  mainText: z.string().min(50, { message: "Main text must be at least 50 characters (HTML supported)." }),
   imageUrl: z.string().url({ message: "Please enter a valid URL for the image." }).optional().or(z.literal('')),
   imageHint: z.string().optional(),
   achievements: z.array(achievementSchema).min(1, { message: "At least one achievement is required." }),
@@ -71,9 +71,9 @@ export default function AdminAboutPage() {
 
   const onSubmit: SubmitHandler<AboutFormValues> = async (data) => {
     try {
-      const currentContent = getAboutContent(); // To get existing ID
+      const currentContent = getAboutContent(); 
       const contentToSave: AboutContent = {
-        id: currentContent.id, // Use existing ID
+        id: currentContent.id, 
         ...data,
         achievements: data.achievements.map(ach => ({
           ...ach,
@@ -86,7 +86,7 @@ export default function AdminAboutPage() {
         description: "The About page content has been updated successfully.",
         variant: "default",
       });
-      // router.push("/admin/dashboard"); // Or stay on page
+      // router.push("/admin/dashboard"); 
     } catch (error) {
        console.error("Failed to update About page:", error);
        toast({
@@ -111,13 +111,13 @@ export default function AdminAboutPage() {
       <Card>
         <CardHeader>
           <CardTitle>About Page Content</CardTitle>
-          <CardDescription>Modify the text, image, and achievements. Use Markdown for the main text.</CardDescription>
+          <CardDescription>Modify the text, image, and achievements. Use HTML for the main text field.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <Label htmlFor="mainText">Main Text (Markdown)</Label>
-              <Textarea id="mainText" {...form.register("mainText")} rows={10} className="mt-1" />
+              <Label htmlFor="mainText">Main Text (HTML supported)</Label>
+              <Textarea id="mainText" {...form.register("mainText")} rows={10} className="mt-1" placeholder="Enter your main bio here. Use HTML tags for formatting."/>
               {form.formState.errors.mainText && <p className="text-sm text-destructive mt-1">{form.formState.errors.mainText.message}</p>}
             </div>
 
@@ -195,4 +195,3 @@ export default function AdminAboutPage() {
     </div>
   );
 }
-

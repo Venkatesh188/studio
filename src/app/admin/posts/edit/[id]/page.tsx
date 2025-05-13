@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState, type ChangeEvent } from "react";
+import { useEffect, useState } from "react"; // Removed: type ChangeEvent
 import { Switch } from "@/components/ui/switch";
 import { getPostById, updatePost as updatePostInStorage } from "@/lib/post-manager";
 import type { Post, Category } from "@/types/post";
@@ -29,7 +29,7 @@ const postSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
   category: z.string().min(1, { message: "Please select a category." }),
-  content: z.string().min(50, { message: "Content must be at least 50 characters." }),
+  content: z.string().min(50, { message: "Content must be at least 50 characters (HTML supported)." }),
   excerpt: z.string().max(200, { message: "Excerpt cannot exceed 200 characters." }).optional().default(""),
   coverImage: z.string().url({ message: "Please enter a valid URL for the cover image." }).optional().or(z.literal('')),
   published: z.boolean().default(false),
@@ -73,18 +73,7 @@ export default function EditPostPage() {
     }
   }, [postId, form, router, toast]);
 
-  const handleMarkdownUpload = (event: ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const text = e.target?.result as string;
-        form.setValue("content", text, { shouldValidate: true });
-        toast({ title: "Markdown Loaded", description: "Content from MD file loaded into editor." });
-      };
-      reader.readAsText(file);
-    }
-  };
+  // Removed handleMarkdownUpload function
 
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
     try {
@@ -128,13 +117,13 @@ export default function EditPostPage() {
     <div className="space-y-8">
       <header className="mb-8">
         <h1 className="text-3xl font-bold text-foreground">Edit Post</h1>
-        <p className="text-muted-foreground">Update the details for your blog post or tutorial. You can also upload a Markdown file for the content.</p>
+        <p className="text-muted-foreground">Update the details for your blog post or tutorial. Use HTML for the content field.</p>
       </header>
 
       <Card>
         <CardHeader>
           <CardTitle>Post Details</CardTitle>
-          <CardDescription>Modify the content and metadata for your post.</CardDescription>
+          <CardDescription>Modify the content and metadata for your post. Use HTML for the content field to include rich formatting, code snippets, and images.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -179,14 +168,11 @@ export default function EditPostPage() {
               {form.formState.errors.category && <p className="text-sm text-destructive mt-1">{form.formState.errors.category.message}</p>}
             </div>
 
-            <div>
-              <Label htmlFor="markdownUpload">Upload Markdown File (Optional)</Label>
-              <Input id="markdownUpload" type="file" accept=".md,.markdown" onChange={handleMarkdownUpload} className="mt-1 file:text-primary file:font-medium" />
-            </div>
+            {/* Removed Markdown Upload Section */}
 
             <div>
-              <Label htmlFor="content">Content (Markdown supported)</Label>
-              <Textarea id="content" {...form.register("content")} rows={15} className="mt-1" />
+              <Label htmlFor="content">Content (HTML supported)</Label>
+              <Textarea id="content" {...form.register("content")} rows={15} className="mt-1" placeholder="Enter your post content here. You can use HTML tags for formatting."/>
               {form.formState.errors.content && <p className="text-sm text-destructive mt-1">{form.formState.errors.content.message}</p>}
             </div>
 

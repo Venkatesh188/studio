@@ -1,13 +1,14 @@
+
 export interface Post {
   id: string;
   slug: string;
   title: string;
-  category: string; // category slug
-  categoryName?: string; // category display name
-  content: string;
+  category: string; 
+  categoryName?: string; 
+  content: string; // Stores HTML content
   excerpt: string;
   coverImage?: string;
-  imageUrl?: string; // for blog post detail, similar to coverImage
+  imageUrl?: string; 
   imageHint?: string;
   published: boolean;
   date: string; // YYYY-MM-DD

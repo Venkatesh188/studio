@@ -19,10 +19,10 @@ import type { Project } from "@/types/cms";
 const projectSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
-  description: z.string().min(20, { message: "Description must be at least 20 characters (Markdown)." }),
-  problem: z.string().min(20, { message: "Problem statement must be at least 20 characters (Markdown)." }),
+  description: z.string().min(20, { message: "Description must be at least 20 characters (HTML supported)." }),
+  problem: z.string().min(20, { message: "Problem statement must be at least 20 characters (HTML supported)." }),
   tools: z.string().min(1, {message: "Please list at least one tool, comma-separated."}),
-  outcome: z.string().min(20, { message: "Outcome must be at least 20 characters (Markdown)." }),
+  outcome: z.string().min(20, { message: "Outcome must be at least 20 characters (HTML supported)." }),
   imageUrl: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
   imageHint: z.string().optional(),
   liveLink: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
@@ -141,7 +141,7 @@ export default function EditProjectPage() {
       <Card>
         <CardHeader>
           <CardTitle>Project Details</CardTitle>
-          <CardDescription>Modify the content and metadata for your project. Use Markdown for text fields.</CardDescription>
+          <CardDescription>Modify the content and metadata for your project. Use HTML for description, problem, and outcome fields.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -158,14 +158,14 @@ export default function EditProjectPage() {
             </div>
             
             <div>
-              <Label htmlFor="description">Description (Markdown)</Label>
-              <Textarea id="description" {...form.register("description")} rows={5} className="mt-1" />
+              <Label htmlFor="description">Description (HTML supported)</Label>
+              <Textarea id="description" {...form.register("description")} rows={5} className="mt-1" placeholder="Enter project description. Use HTML for formatting."/>
               {form.formState.errors.description && <p className="text-sm text-destructive mt-1">{form.formState.errors.description.message}</p>}
             </div>
 
             <div>
-              <Label htmlFor="problem">Problem Statement (Markdown)</Label>
-              <Textarea id="problem" {...form.register("problem")} rows={3} className="mt-1" />
+              <Label htmlFor="problem">Problem Statement (HTML supported)</Label>
+              <Textarea id="problem" {...form.register("problem")} rows={3} className="mt-1" placeholder="Describe the problem this project solves. Use HTML for formatting." />
               {form.formState.errors.problem && <p className="text-sm text-destructive mt-1">{form.formState.errors.problem.message}</p>}
             </div>
 
@@ -176,8 +176,8 @@ export default function EditProjectPage() {
             </div>
 
             <div>
-              <Label htmlFor="outcome">Outcome (Markdown)</Label>
-              <Textarea id="outcome" {...form.register("outcome")} rows={3} className="mt-1" />
+              <Label htmlFor="outcome">Outcome (HTML supported)</Label>
+              <Textarea id="outcome" {...form.register("outcome")} rows={3} className="mt-1" placeholder="Describe the outcome or results. Use HTML for formatting." />
               {form.formState.errors.outcome && <p className="text-sm text-destructive mt-1">{form.formState.errors.outcome.message}</p>}
             </div>
 
@@ -238,4 +238,3 @@ export default function EditProjectPage() {
     </div>
   );
 }
-

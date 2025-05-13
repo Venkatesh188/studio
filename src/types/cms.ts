@@ -5,39 +5,37 @@ export interface Project {
   id: string;
   slug: string;
   title: string;
-  description: string; // Markdown
-  problem: string; // Markdown
+  description: string; // HTML
+  problem: string; // HTML
   tools: string[];
-  outcome: string; // Markdown
+  outcome: string; // HTML
   imageUrl?: string;
   imageHint?: string;
   liveLink?: string;
   repoLink?: string;
   published: boolean;
   date: string; // YYYY-MM-DD
-  author: string; // Default to "Venkatesh S." for now
+  author: string; 
   tags?: string[];
 }
 
 export interface Achievement {
-  id: string; // for key prop
-  iconName: string; // Corresponds to a key in iconMap
+  id: string; 
+  iconName: string; 
   text: string;
 }
 
 export interface AboutContent {
-  id: string; // e.g., "main-about-content"
-  mainText: string; // Markdown
+  id: string; 
+  mainText: string; // HTML
   imageUrl?: string;
   imageHint?: string;
   achievements: Achievement[];
 }
 
-// For mapping icon names to actual components
 export const ICONS: { [key: string]: LucideIcon } = {
   Award: require('lucide-react').Award,
   Brain: require('lucide-react').Brain,
   Users: require('lucide-react').Users,
   Lightbulb: require('lucide-react').Lightbulb,
-  // Add more icons as needed for achievements or other parts
 };

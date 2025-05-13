@@ -5,7 +5,6 @@ import type { Project } from '@/types/cms';
 
 const PROJECTS_STORAGE_KEY = 'projectsData';
 
-// Helper to get projects from localStorage
 const getProjectsFromStorage = (): Project[] => {
   if (typeof window === 'undefined') {
     return [];
@@ -19,7 +18,6 @@ const getProjectsFromStorage = (): Project[] => {
   }
 };
 
-// Helper to save projects to localStorage
 const saveProjectsToStorage = (projects: Project[]): void => {
   if (typeof window === 'undefined') {
     return;
@@ -31,7 +29,6 @@ const saveProjectsToStorage = (projects: Project[]): void => {
   }
 };
 
-// Initialize with dummy data if localStorage is empty
 const initializeDummyProjects = () => {
   if (typeof window !== 'undefined' && !localStorage.getItem(PROJECTS_STORAGE_KEY)) {
     const dummyProjects: Project[] = [
@@ -39,10 +36,10 @@ const initializeDummyProjects = () => {
         id: "proj-1",
         slug: "allagash-brewing-data-analysis",
         title: "Data Analysis for Allagash Brewing Company",
-        description: "Led a data analysis project to **optimize packaging strategies** by analyzing sales trends. The insights derived helped in better inventory management and targeted marketing for seasonal products.",
-        problem: "The primary challenge was inefficient packaging leading to potential revenue loss and high inventory holding costs for less popular SKUs. Sales data was available but not effectively utilized for demand forecasting of specific pack sizes.",
+        description: "<p>Led a data analysis project to <strong>optimize packaging strategies</strong> by analyzing sales trends. The insights derived helped in better inventory management and targeted marketing for seasonal products.</p>",
+        problem: "<p>The primary challenge was inefficient packaging leading to potential revenue loss and high inventory holding costs for less popular SKUs. Sales data was available but not effectively utilized for demand forecasting of specific pack sizes.</p>",
         tools: ["Data Analysis", "Sales Trend Analysis", "Inventory Optimization", "Python", "Pandas"],
-        outcome: "Achieved a **20% increase in taproom revenue** by aligning packaging with demand. Identified a 15% higher demand for seasonal to-go packs, leading to reduced waste and better stock rotation. The project provided a clear framework for data-driven decision making in packaging.",
+        outcome: "<p>Achieved a <strong>20% increase in taproom revenue</strong> by aligning packaging with demand. Identified a 15% higher demand for seasonal to-go packs, leading to reduced waste and better stock rotation. The project provided a clear framework for data-driven decision making in packaging.</p>",
         imageUrl: "https://picsum.photos/seed/allagash/400/250",
         imageHint: "brewery data analytics",
         published: true,
@@ -54,10 +51,10 @@ const initializeDummyProjects = () => {
         id: "proj-2",
         slug: "ml-cardiac-surgery-prediction",
         title: "ML for Adverse Events after Cardiac Surgery",
-        description: "Developed and validated machine learning models to **predict complications** such as kidney failure after cardiac surgery. This involved working with sensitive medical data and ensuring model interpretability.",
-        problem: "Early and accurate prediction of post-operative complications is crucial for timely intervention and improved patient outcomes. Existing models lacked desired precision for specific high-risk cohorts.",
+        description: "<p>Developed and validated machine learning models to <strong>predict complications</strong> such as kidney failure after cardiac surgery. This involved working with sensitive medical data and ensuring model interpretability.</p>",
+        problem: "<p>Early and accurate prediction of post-operative complications is crucial for timely intervention and improved patient outcomes. Existing models lacked desired precision for specific high-risk cohorts.</p>",
         tools: ["Machine Learning", "Predictive Modeling", "Python", "Scikit-learn", "Healthcare Analytics"],
-        outcome: "The developed models demonstrated **improved prediction accuracy by 12%** compared to the national STS model. This enables better resource allocation for high-risk patients and has the potential to significantly reduce adverse event rates.",
+        outcome: "<p>The developed models demonstrated <strong>improved prediction accuracy by 12%</strong> compared to the national STS model. This enables better resource allocation for high-risk patients and has the potential to significantly reduce adverse event rates.</p>",
         imageUrl: "https://picsum.photos/seed/cardiacml/400/250",
         imageHint: "medical technology machine learning",
         published: true,
@@ -105,7 +102,7 @@ export const updateProject = (id: string, updatedData: Partial<Omit<Project, 'id
   if (projectIndex === -1) {
     return undefined;
   }
-  // Preserve original id and author
+  
   const originalProject = projects[projectIndex];
   const updatedProjectDetails = { ...originalProject, ...updatedData, id: originalProject.id, author: originalProject.author };
   
@@ -133,4 +130,3 @@ export const getPublishedProjects = (): Project[] => {
 export const getRecentProjects = (limit: number = 3): Project[] => {
     return getPublishedProjects().slice(0, limit);
 };
-

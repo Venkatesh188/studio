@@ -5,26 +5,24 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import { ExternalLink, Github, FileText } from "lucide-react";
-import type { Project } from "@/types/cms"; // Import Project type
-import { renderMarkdown } from "@/lib/markdownRenderer";
+import type { Project } from "@/types/cms"; 
+import { RenderHtmlContent } from "@/lib/htmlRenderer";
 
-// ProjectCardProps now uses the Project type, removing redundant fields
 interface ProjectCardProps extends Project {}
 
 export default function ProjectCard({
   title,
-  description, // Markdown
-  problem,     // Markdown
+  description, 
+  problem,     
   tools,
-  outcome,     // Markdown
+  outcome,     
   imageUrl = "https://picsum.photos/seed/project/400/250",
   imageHint = "abstract tech",
   liveLink,
   repoLink,
-  // paperLink, // Assuming paperLink is not part of the base Project type for now, can be added
-  slug, // Added slug to link to a potential detail page
+  slug, 
 }: ProjectCardProps) {
-  // A potential detail page link, if you plan to have one for projects
+  
   const projectDetailLink = `/projects/${slug}`; 
 
   return (
@@ -45,22 +43,22 @@ export default function ProjectCard({
         <CardTitle className="text-xl text-primary hover:underline">
             <Link href={projectDetailLink}>{title}</Link>
         </CardTitle>
-        {/* Render description as Markdown, but limit height for card view */}
+        
         <div className="text-sm text-muted-foreground h-16 overflow-hidden">
-            {renderMarkdown(description)}
+            <RenderHtmlContent htmlString={description} className="prose-xs dark:prose-invert max-h-16 overflow-hidden"/>
         </div>
       </CardHeader>
       <CardContent className="flex-grow space-y-3">
         <div>
           <h4 className="font-semibold text-sm mb-1">Problem:</h4>
-          <div className="text-xs text-foreground/80 max-h-20 overflow-y-auto prose prose-xs dark:prose-invert">
-            {renderMarkdown(problem)}
+          <div className="text-xs text-foreground/80 max-h-20 overflow-y-auto">
+            <RenderHtmlContent htmlString={problem} className="prose-xs dark:prose-invert"/>
           </div>
         </div>
         <div>
           <h4 className="font-semibold text-sm mb-1">Outcome:</h4>
-           <div className="text-xs text-foreground/80 max-h-20 overflow-y-auto prose prose-xs dark:prose-invert">
-            {renderMarkdown(outcome)}
+           <div className="text-xs text-foreground/80 max-h-20 overflow-y-auto">
+            <RenderHtmlContent htmlString={outcome} className="prose-xs dark:prose-invert"/>
           </div>
         </div>
         <div>
@@ -87,13 +85,6 @@ export default function ProjectCard({
             </Link>
           </Button>
         )}
-        {/* {paperLink && ( // Uncomment if paperLink is used
-          <Button variant="outline" size="sm" asChild className="text-xs">
-            <Link href={paperLink} target="_blank" rel="noopener noreferrer">
-              <FileText className="mr-1 h-3 w-3" /> Read Paper
-            </Link>
-          </Button>
-        )} */}
          <Button variant="link" size="sm" asChild className="text-xs text-primary p-0">
             <Link href={projectDetailLink}>
                 Read More <ExternalLink className="ml-1 h-3 w-3" />

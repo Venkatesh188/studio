@@ -14,39 +14,33 @@ const defaultAchievements: Achievement[] = [
 
 const defaultAboutContent: AboutContent = {
   id: "main-about-content",
-  mainText: `Hello! I'm Venkatesh Shivandi, an Applied Machine Intelligence professional with a passion for leveraging AI to solve real-world challenges and drive impactful change. My journey in AI is fueled by a deep curiosity and a commitment to continuous learning.
-
-With a Master’s in Applied Machine Intelligence from Northeastern University (GPA: 3.94) and hands-on experience in roles spanning AI development, software engineering, and data science, I've honed a versatile skill set. I specialize in developing robust machine learning models, optimizing complex systems, and translating data into actionable insights.
-
-My expertise includes Python, SQL, NoSQL, and cloud platforms like AWS and Azure. I'm proficient in tools like Power BI, Tableau, and various machine learning libraries. I'm also a Microsoft Certified Azure Data Engineer Associate.
-
-I thrive in collaborative environments, leading cross-functional teams and spearheading innovation. My goal is to not only build advanced AI solutions but also to mentor and inspire others in the field.`,
+  mainText: `<p>Hello! I'm Venkatesh Shivandi, an Applied Machine Intelligence professional with a passion for leveraging AI to solve real-world challenges and drive impactful change. My journey in AI is fueled by a deep curiosity and a commitment to continuous learning.</p>
+<p>With a Master’s in Applied Machine Intelligence from Northeastern University (GPA: 3.94) and hands-on experience in roles spanning AI development, software engineering, and data science, I've honed a versatile skill set. I specialize in developing robust machine learning models, optimizing complex systems, and translating data into actionable insights.</p>
+<p>My expertise includes Python, SQL, NoSQL, and cloud platforms like AWS and Azure. I'm proficient in tools like Power BI, Tableau, and various machine learning libraries. I'm also a Microsoft Certified Azure Data Engineer Associate.</p>
+<p>I thrive in collaborative environments, leading cross-functional teams and spearheading innovation. My goal is to not only build advanced AI solutions but also to mentor and inspire others in the field.</p>`,
   imageUrl: "https://picsum.photos/seed/venkateshwork/600/400",
   imageHint: "person working computer",
   achievements: defaultAchievements,
 };
 
-// Helper to get About content from localStorage
 const getAboutFromStorage = (): AboutContent | null => {
   if (typeof window === 'undefined') {
-    return defaultAboutContent; // Return default if not in browser (e.g. build time)
+    return defaultAboutContent; 
   }
   try {
     const storedAbout = localStorage.getItem(ABOUT_STORAGE_KEY);
     if (storedAbout) {
       return JSON.parse(storedAbout);
     } else {
-      // Initialize if not present
       localStorage.setItem(ABOUT_STORAGE_KEY, JSON.stringify(defaultAboutContent));
       return defaultAboutContent;
     }
   } catch (error) {
     console.error('Error parsing About content from localStorage:', error);
-    return defaultAboutContent; // Fallback to default on error
+    return defaultAboutContent; 
   }
 };
 
-// Helper to save About content to localStorage
 const saveAboutToStorage = (content: AboutContent): void => {
   if (typeof window === 'undefined') {
     return;
@@ -61,22 +55,20 @@ const saveAboutToStorage = (content: AboutContent): void => {
 
 export const getAboutContent = (): AboutContent => {
   const content = getAboutFromStorage();
-  return content || defaultAboutContent; // Ensure it never returns null for easier consumption
+  return content || defaultAboutContent; 
 };
 
 export const updateAboutContent = (updatedData: Partial<AboutContent>): AboutContent => {
-  const currentContent = getAboutContent(); // This will provide defaults if nothing is stored
+  const currentContent = getAboutContent(); 
   const newContent: AboutContent = {
     ...currentContent,
     ...updatedData,
-    id: currentContent.id || "main-about-content", // ensure id is always present
+    id: currentContent.id || "main-about-content", 
   };
   saveAboutToStorage(newContent);
   return newContent;
 };
 
-// Initialize with dummy data if localStorage is empty
 if (typeof window !== 'undefined' && !localStorage.getItem(ABOUT_STORAGE_KEY)) {
   saveAboutToStorage(defaultAboutContent);
 }
-
