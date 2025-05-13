@@ -1,6 +1,5 @@
 
-// This is a placeholder page for posts by category.
-// In a real application, you would fetch posts based on the categorySlug.
+'use client';
 
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import { Button } from "@/components/ui/button";
@@ -8,32 +7,49 @@ import { ArrowLeft, ArrowRight, Tag, CalendarDays, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+import { getPostsByCategory } from "@/lib/post-manager";
+import type { Post, Category } from "@/types/post";
 
-// Dummy data - replace with Firestore data fetching
-const allPosts = [
-  { id: "1", title: "The Future of Generative AI", slug: "future-of-generative-ai", excerpt: "Exploring upcoming trends and impacts of generative AI models across industries.", imageUrl: "https://picsum.photos/seed/catpost1/400/250", imageHint: "ai data", categorySlug: "ai-news", categoryName: "AI News", date: "2024-07-28", author: "Venkatesh S." },
-  { id: "2", title: "A Beginner's Guide to Prompt Engineering", slug: "beginners-guide-prompt-engineering", excerpt: "Learn the art of crafting effective prompts for better AI-generated results.", imageUrl: "https://picsum.photos/seed/catpost2/400/250", imageHint: "learning code", categorySlug: "tutorials", categoryName: "Tutorials", date: "2024-07-25", author: "Venkatesh S." },
-  { id: "3", title: "AI in Personalized Education", slug: "ai-in-personalized-education", excerpt: "How artificial intelligence is tailoring learning experiences for students worldwide.", imageUrl: "https://picsum.photos/seed/catpost3/400/250", imageHint: "education tech", categorySlug: "case-studies", categoryName: "Case Studies", date: "2024-07-22", author: "Venkatesh S." },
-  { id: "4", title: "Another AI News Update", slug: "another-ai-news", excerpt: "More news from the AI world.", imageUrl: "https://picsum.photos/seed/catpost4/400/250", imageHint: "news screen", categorySlug: "ai-news", categoryName: "AI News", date: "2024-07-20", author: "Venkatesh S." },
+const blogCategories: Category[] = [
+  { name: "AI News", slug: "ai-news", description: "Latest updates and breakthroughs in the world of AI." },
+  { name: "Tutorials", slug: "tutorials", description: "Step-by-step guides to learn new AI skills." },
+  { name: "Case Studies", slug: "case-studies", description: "Real-world applications and successes of AI." },
+  { name: "Industry Insights", slug: "industry-insights", description: "Expert perspectives on AI trends and impacts." },
+  { name: "How-To Guides", slug: "how-to-guides", description: "Practical instructions for AI tools and techniques." },
 ];
 
-const categoriesMap: { [key: string]: string } = {
-  "ai-news": "AI News",
-  "tutorials": "Tutorials",
-  "case-studies": "Case Studies",
-  "industry-insights": "Industry Insights",
-  "how-to-guides": "How-To Guides",
-};
+const categoriesMap: { [key: string]: string } = Object.fromEntries(
+  blogCategories.map(cat => [cat.slug, cat.name])
+);
 
-
-export default async function CategoryPage({ params }: { params: { categorySlug: string } }) {
+export default function CategoryPage({ params }: { params: { categorySlug: string } }) {
   const { categorySlug } = params;
+  const [postsInCategory, setPostsInCategory] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const categoryName = categoriesMap[categorySlug] || "Selected Category";
-  
-  // Filter posts by categorySlug (dummy implementation)
-  const postsInCategory = allPosts.filter(post => post.categorySlug === categorySlug);
 
-  if (postsInCategory.length === 0 && !categoriesMap[categorySlug]) {
+  useEffect(() => {
+    if (categorySlug) {
+      setIsLoading(true);
+      const fetchedPosts = getPostsByCategory(categorySlug);
+      setPostsInCategory(fetchedPosts.map(p => ({ ...p, categoryName: categoriesMap[p.category] || p.category })));
+      setIsLoading(false);
+    }
+  }, [categorySlug]);
+
+  if (isLoading) {
+    return (
+      <SectionWrapper id={`category-${categorySlug}-loading`} title={`Loading ${categoryName} Posts...`} subtitle="Please wait">
+        <div className="text-center">
+          <p className="text-muted-foreground mb-6">Fetching posts...</p>
+        </div>
+      </SectionWrapper>
+    );
+  }
+
+  if (!categoriesMap[categorySlug]) {
      return (
       <SectionWrapper id="category-not-found" title="Category Not Found" subtitle="Oops!">
         <div className="text-center">
@@ -63,14 +79,14 @@ export default async function CategoryPage({ params }: { params: { categorySlug:
           {postsInCategory.map((post) => (
             <Card key={post.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
               <CardHeader className="p-0">
-                <Link href={`/blog/${post.slug}`} className="block">
+                <Link href={`/blog/${post.slug}`} className="block group">
                   <div className="relative w-full h-48">
                     <Image 
-                        src={post.imageUrl} 
+                        src={post.coverImage || post.imageUrl || "https://picsum.photos/seed/defaultcat/400/250"} 
                         alt={post.title} 
                         layout="fill" 
                         objectFit="cover" 
-                        data-ai-hint={post.imageHint}
+                        data-ai-hint={post.imageHint || "tech article"}
                         className="transition-transform duration-500 group-hover:scale-105"
                     />
                   </div>
@@ -105,12 +121,3 @@ export default async function CategoryPage({ params }: { params: { categorySlug:
     </SectionWrapper>
   );
 }
-
-// Generate static paths for dummy categories if needed for build
-// export async function generateStaticParams() {
-//   const categorySlugs = ["ai-news", "tutorials", "case-studies"];
-//   return categorySlugs.map((slug) => ({
-//     categorySlug: slug,
-//   }));
-// }
-

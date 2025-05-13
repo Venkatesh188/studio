@@ -8,7 +8,7 @@ import { Menu, CodeXml, LogIn, UserCog, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
-import { useRouter } from 'next/navigation'; 
+import { usePathname, useRouter } from 'next/navigation'; 
 import ThemeSwitcher from './ThemeSwitcher'; 
 import { useToast } from '@/hooks/use-toast';
 
@@ -27,6 +27,7 @@ export default function Header() {
   const { user, loading, signOut: authSignOut } = useAuth();
   const router = useRouter(); 
   const { toast } = useToast();
+  const currentRoutePathname = usePathname();
 
   const handleSignOut = async () => {
     try {
@@ -43,27 +44,42 @@ export default function Header() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 50);
       
-      let currentSection = '';
-      const navItemsForScroll = baseNavItems.filter(item => item.href.startsWith('#'));
-      navItemsForScroll.forEach(item => {
-        const section = document.querySelector(item.href) as HTMLElement;
-        if (section && section.offsetTop <= window.scrollY + 100) {
-          currentSection = item.href;
-        }
-      });
-      setActiveSection(currentSection);
+      if (currentRoutePathname === '/') { // Only track active section on homepage
+        let currentSectionId = '';
+        baseNavItems.forEach(item => { 
+          if (item.href.startsWith('#')) {
+            const section = document.querySelector(item.href) as HTMLElement;
+            if (section && section.offsetTop <= window.scrollY + 150) { // Adjust offset as needed
+              currentSectionId = item.href;
+            }
+          }
+        });
+        setActiveSection(currentSectionId);
+      } else {
+        setActiveSection(''); // Reset active section if not on homepage
+      }
     };
 
     window.addEventListener('scroll', handleScroll);
-    handleScroll(); 
+    handleScroll(); // Initial check
 
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [currentRoutePathname]);
 
-  const navItems = [
+
+  const allNavLinks = [
     ...baseNavItems,
     ...(user ? [{ href: '/admin/dashboard', label: 'Admin', icon: UserCog, type: 'admin' as const }] : []),
   ];
+
+  const processedNavItems = allNavLinks.map(item => {
+    let fullHref = item.href;
+    if (item.href.startsWith('#')) {
+      fullHref = currentRoutePathname === '/' ? item.href : `/${item.href}`;
+    }
+    return { ...item, fullHref }; 
+  });
+
 
   return (
     <header className={cn(
@@ -78,19 +94,27 @@ export default function Header() {
           </Link>
           
           <nav className="hidden md:flex items-center space-x-1 lg:space-x-2">
-            {navItems.map((item) => (
-              <Link key={item.label} href={item.href} passHref legacyBehavior>
-                <a className={cn(
-                  "px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-1.5",
-                  (item.href.startsWith('#') ? activeSection === item.href : pathname.startsWith(item.href))
-                    ? "text-primary bg-primary/10" 
-                    : "text-foreground/80"
-                )}>
-                  {item.icon && <item.icon className="h-4 w-4" />}
-                  {item.label}
-                </a>
-              </Link>
-            ))}
+            {processedNavItems.map((item) => {
+              let itemIsActive = false;
+              if (item.href.startsWith('#')) { 
+                itemIsActive = currentRoutePathname === '/' && activeSection === item.href;
+              } else {
+                itemIsActive = currentRoutePathname.startsWith(item.href);
+              }
+              return (
+                <Link key={item.label} href={item.fullHref} passHref legacyBehavior>
+                  <a className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-1.5",
+                    itemIsActive
+                      ? "text-primary bg-primary/10" 
+                      : "text-foreground/80"
+                  )}>
+                    {item.icon && <item.icon className="h-4 w-4" />}
+                    {item.label}
+                  </a>
+                </Link>
+              );
+            })}
             {!loading && (
               user ? (
                 <Button variant="ghost" size="sm" onClick={handleSignOut} className="text-foreground/80 hover:text-primary hover:bg-primary/10">
@@ -118,11 +142,18 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right" className="w-[250px] bg-background p-6">
                 <nav className="flex flex-col space-y-3 mt-8">
-                  {navItems.map((item) => (
-                     <Link key={item.label} href={item.href} passHref legacyBehavior>
+                  {processedNavItems.map((item) => {
+                     let itemIsActive = false;
+                     if (item.href.startsWith('#')) {
+                       itemIsActive = currentRoutePathname === '/' && activeSection === item.href;
+                     } else {
+                       itemIsActive = currentRoutePathname.startsWith(item.href);
+                     }
+                    return (
+                     <Link key={item.label} href={item.fullHref} passHref legacyBehavior>
                       <a className={cn(
                         "block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-2",
-                        (item.href.startsWith('#') ? activeSection === item.href : pathname.startsWith(item.href))
+                        itemIsActive
                           ? "text-primary bg-primary/10" 
                           : "text-foreground/80"
                       )}>
@@ -130,7 +161,8 @@ export default function Header() {
                         {item.label}
                       </a>
                     </Link>
-                  ))}
+                  );
+                  })}
                    {!loading && (
                     user ? (
                       <Button variant="ghost" onClick={handleSignOut} className="justify-start px-3 py-2 text-base font-medium text-foreground/80 hover:text-primary hover:bg-primary/10">
@@ -153,11 +185,3 @@ export default function Header() {
     </header>
   );
 }
-// Helper to get current pathname for active link styling in mobile view
-// This assumes a similar logic to usePathname could be replicated or passed if Header becomes server component
-// For client component, usePathname can be used directly.
-let pathname = '';
-if (typeof window !== 'undefined') {
-  pathname = window.location.pathname;
-}
-
