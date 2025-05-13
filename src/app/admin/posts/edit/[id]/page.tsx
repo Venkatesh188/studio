@@ -12,7 +12,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react"; // Removed: type ChangeEvent
+import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { getPostById, updatePost as updatePostInStorage } from "@/lib/post-manager";
 import type { Post, Category } from "@/types/post";
@@ -71,9 +71,7 @@ export default function EditPostPage() {
       }
       setIsLoading(false);
     }
-  }, [postId, form, router, toast]);
-
-  // Removed handleMarkdownUpload function
+  }, [postId, form, toast]); // Removed router from dependencies as it's not directly used for re-fetch
 
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
     try {
@@ -97,6 +95,20 @@ export default function EditPostPage() {
       });
     }
   };
+  
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const title = event.target.value;
+    form.setValue("title", title);
+    const slug = title
+      .toLowerCase()
+      .replace(/\s+/g, "-") 
+      .replace(/[^\w-]+/g, "") 
+      .replace(/--+/g, "-") 
+      .replace(/^-+/, "") 
+      .replace(/-+$/, ""); 
+    form.setValue("slug", slug, { shouldValidate: true });
+  };
+
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-full"><p>Loading post data...</p></div>;
@@ -123,25 +135,19 @@ export default function EditPostPage() {
       <Card>
         <CardHeader>
           <CardTitle>Post Details</CardTitle>
-          <CardDescription>Modify the content and metadata for your post. Use HTML for the content field to include rich formatting, code snippets, and images.</CardDescription>
+          <CardDescription>Modify the content and metadata for your post. Use HTML for the content field to include rich formatting, code snippets, and images. For direct image pasting or a visual editor, a more advanced Rich Text Editor component would be required.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <Label htmlFor="title">Title</Label>
-              <Input id="title" {...form.register("title")} className="mt-1" />
+              <Input id="title" {...form.register("title")} onChange={handleTitleChange} className="mt-1" />
               {form.formState.errors.title && <p className="text-sm text-destructive mt-1">{form.formState.errors.title.message}</p>}
             </div>
 
             <div>
               <Label htmlFor="slug">Slug</Label>
-              <Input id="slug" {...form.register("slug")} className="mt-1" 
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const slugifiedValue = value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                  form.setValue('slug', slugifiedValue, { shouldValidate: true });
-                }}
-              />
+              <Input id="slug" {...form.register("slug")} className="mt-1" />
               {form.formState.errors.slug && <p className="text-sm text-destructive mt-1">{form.formState.errors.slug.message}</p>}
             </div>
             
@@ -168,11 +174,15 @@ export default function EditPostPage() {
               {form.formState.errors.category && <p className="text-sm text-destructive mt-1">{form.formState.errors.category.message}</p>}
             </div>
 
-            {/* Removed Markdown Upload Section */}
-
             <div>
               <Label htmlFor="content">Content (HTML supported)</Label>
-              <Textarea id="content" {...form.register("content")} rows={15} className="mt-1" placeholder="Enter your post content here. You can use HTML tags for formatting."/>
+              <Textarea 
+                id="content" 
+                {...form.register("content")} 
+                rows={15} 
+                className="mt-1" 
+                placeholder="Enter content using HTML. E.g., <p>Paragraph</p> <img src='url_or_data_uri' alt='description'> <pre><code>code_snippet</code></pre>"
+              />
               {form.formState.errors.content && <p className="text-sm text-destructive mt-1">{form.formState.errors.content.message}</p>}
             </div>
 
@@ -217,3 +227,4 @@ export default function EditPostPage() {
     </div>
   );
 }
+

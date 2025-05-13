@@ -15,7 +15,6 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { createPost as createPostInStorage } from "@/lib/post-manager";
 import type { Category } from "@/types/post";
-// Removed: import type { ChangeEvent } from "react";
 
 
 const categories: Category[] = [
@@ -54,8 +53,6 @@ export default function NewPostPage() {
     },
   });
 
-  // Removed handleMarkdownUpload function
-
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
     try {
       const newPost = createPostInStorage(data);
@@ -74,6 +71,19 @@ export default function NewPostPage() {
       });
     }
   };
+  
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const title = event.target.value;
+    form.setValue("title", title);
+    const slug = title
+      .toLowerCase()
+      .replace(/\s+/g, "-") 
+      .replace(/[^\w-]+/g, "") 
+      .replace(/--+/g, "-") 
+      .replace(/^-+/, "") 
+      .replace(/-+$/, ""); 
+    form.setValue("slug", slug, { shouldValidate: true });
+  };
 
   return (
     <div className="space-y-8">
@@ -85,25 +95,19 @@ export default function NewPostPage() {
       <Card>
         <CardHeader>
           <CardTitle>Post Details</CardTitle>
-          <CardDescription>Enter the content and metadata for your post. Use HTML for the content field to include rich formatting, code snippets, and images.</CardDescription>
+          <CardDescription>Enter the content and metadata for your post. Use HTML for the content field to include rich formatting, code snippets, and images. For direct image pasting or a visual editor, a more advanced Rich Text Editor component would be required.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div>
               <Label htmlFor="title">Title</Label>
-              <Input id="title" {...form.register("title")} className="mt-1" />
+              <Input id="title" {...form.register("title")} onChange={handleTitleChange} className="mt-1" />
               {form.formState.errors.title && <p className="text-sm text-destructive mt-1">{form.formState.errors.title.message}</p>}
             </div>
 
             <div>
               <Label htmlFor="slug">Slug</Label>
-              <Input id="slug" {...form.register("slug")} placeholder="e.g., my-awesome-post" className="mt-1" 
-                onChange={(e) => {
-                  const value = e.target.value;
-                  const slugifiedValue = value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
-                  form.setValue('slug', slugifiedValue, { shouldValidate: true });
-                }}
-              />
+              <Input id="slug" {...form.register("slug")} placeholder="e.g., my-awesome-post" className="mt-1" />
               {form.formState.errors.slug && <p className="text-sm text-destructive mt-1">{form.formState.errors.slug.message}</p>}
             </div>
             
@@ -130,11 +134,15 @@ export default function NewPostPage() {
               {form.formState.errors.category && <p className="text-sm text-destructive mt-1">{form.formState.errors.category.message}</p>}
             </div>
 
-            {/* Removed Markdown Upload Section */}
-
             <div>
               <Label htmlFor="content">Content (HTML supported)</Label>
-              <Textarea id="content" {...form.register("content")} rows={15} className="mt-1" placeholder="Enter your post content here. You can use HTML tags for formatting." />
+              <Textarea 
+                id="content" 
+                {...form.register("content")} 
+                rows={15} 
+                className="mt-1" 
+                placeholder="Enter content using HTML. E.g., <p>Paragraph</p> <img src='url_or_data_uri' alt='description'> <pre><code>code_snippet</code></pre>" 
+              />
               {form.formState.errors.content && <p className="text-sm text-destructive mt-1">{form.formState.errors.content.message}</p>}
             </div>
 
