@@ -24,8 +24,10 @@ const categoriesMap: { [key: string]: string } = Object.fromEntries(
   blogCategories.map(cat => [cat.slug, cat.name])
 );
 
-export default function CategoryPage({ params }: { params: { categorySlug: string } }) {
-  const { categorySlug } = params;
+export default function CategoryPage() {
+  const params = useParams();
+  const categorySlug = params.categorySlug as string;
+
   const [postsInCategory, setPostsInCategory] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const categoryName = categoriesMap[categorySlug] || "Selected Category";
@@ -121,3 +123,4 @@ export default function CategoryPage({ params }: { params: { categorySlug: strin
     </SectionWrapper>
   );
 }
+
