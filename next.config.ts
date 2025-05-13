@@ -17,7 +17,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      // Firebase Storage remote pattern removed
+      {
+        protocol: 'https',
+        hostname: 'www.bing.com',
+        port: '',
+        pathname: '/**', // Allows any path from www.bing.com
+      },
     ],
   },
   experimental: {
