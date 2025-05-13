@@ -1,3 +1,4 @@
+'use client';
 
 import SectionWrapper from "@/components/shared/SectionWrapper";
 import { Button } from "@/components/ui/button";
@@ -5,16 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowRight, Tag, CalendarDays, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { getRecentPosts } from "@/lib/post-manager";
+import type { Post, Category } from "@/types/post";
 
-// Dummy data - replace with Firestore data fetching
-const recentPosts = [
-  { id: "1", title: "The Future of Generative AI", slug: "future-of-generative-ai", excerpt: "Exploring upcoming trends and impacts of generative AI models across industries.", imageUrl: "https://picsum.photos/seed/blogpost1/400/250", imageHint: "ai future", category: "AI News", date: "2024-07-28", author: "Venkatesh S." },
-  { id: "2", title: "A Beginner's Guide to Prompt Engineering", slug: "beginners-guide-prompt-engineering", excerpt: "Learn the art of crafting effective prompts for better AI-generated results.", imageUrl: "https://picsum.photos/seed/blogpost2/400/250", imageHint: "code screen", category: "Tutorials", date: "2024-07-25", author: "Venkatesh S." },
-  { id: "3", title: "AI in Personalized Education", slug: "ai-in-personalized-education", excerpt: "How artificial intelligence is tailoring learning experiences for students worldwide.", imageUrl: "https://picsum.photos/seed/blogpost3/400/250", imageHint: "digital learning", category: "Case Studies", date: "2024-07-22", author: "Venkatesh S." },
-  { id: "4", title: "Navigating Ethical AI Development", slug: "navigating-ethical-ai", excerpt: "Key considerations for building responsible and ethical AI systems.", imageUrl: "https://picsum.photos/seed/blogpost4/400/250", imageHint: "ethics compass", category: "Industry Insights", date: "2024-07-19", author: "Venkatesh S." },
-];
-
-const blogCategories = [
+const blogCategories: Category[] = [
   { name: "AI News", slug: "ai-news", description: "Latest updates and breakthroughs in the world of AI." },
   { name: "Tutorials", slug: "tutorials", description: "Step-by-step guides to learn new AI skills." },
   { name: "Case Studies", slug: "case-studies", description: "Real-world applications and successes of AI." },
@@ -22,58 +18,78 @@ const blogCategories = [
   { name: "How-To Guides", slug: "how-to-guides", description: "Practical instructions for AI tools and techniques." },
 ];
 
+const categoriesMap: { [key: string]: string } = Object.fromEntries(
+  blogCategories.map(cat => [cat.slug, cat.name])
+);
+
 export default function BlogPage() {
+  const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsLoading(true);
+    const posts = getRecentPosts(3); // Get 3 most recent published posts
+    setRecentPosts(posts.map(p => ({...p, categoryName: categoriesMap[p.category] || p.category })));
+    setIsLoading(false);
+  }, []);
+
+  if (isLoading) {
+    return <SectionWrapper id="blog-page-loading" title="Venkatesh.ai Blog" subtitle="Insights, Tutorials, and News on Artificial Intelligence"><p className="text-center">Loading posts...</p></SectionWrapper>;
+  }
+
   return (
     <SectionWrapper id="blog-page" title="Venkatesh.ai Blog" subtitle="Insights, Tutorials, and News on Artificial Intelligence">
       
-      {/* Recent Posts Section */}
       <div className="mb-16">
         <h2 className="text-3xl font-semibold text-foreground mb-8">Recent Posts</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {recentPosts.slice(0,3).map((post) => ( // Show first 3 recent posts
-            <Card key={post.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
-              <CardHeader className="p-0">
-                <Link href={`/blog/${post.slug}`} className="block">
-                  <div className="relative w-full h-48">
-                    <Image 
-                      src={post.imageUrl} 
-                      alt={post.title} 
-                      layout="fill" 
-                      objectFit="cover" 
-                      data-ai-hint={post.imageHint}
-                      className="transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                </Link>
-              </CardHeader>
-              <CardContent className="flex-grow p-6 space-y-3">
-                <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                  <Tag className="h-3.5 w-3.5" /> <span>{post.category}</span>
-                  <CalendarDays className="h-3.5 w-3.5" /> <span>{post.date}</span>
-                </div>
-                <CardTitle className="text-xl hover:text-primary transition-colors">
-                  <Link href={`/blog/${post.slug}`}>{post.title}</Link>
-                </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground h-20 overflow-hidden">
-                  {post.excerpt}
-                </CardDescription>
-              </CardContent>
-              <div className="p-6 pt-2 flex justify-between items-center">
-                 <div className="flex items-center text-xs text-muted-foreground">
-                    <User className="h-3.5 w-3.5 mr-1.5" /> {post.author}
-                  </div>
-                <Button variant="link" asChild className="p-0 text-primary hover:text-primary/80 text-sm">
-                  <Link href={`/blog/${post.slug}`}>
-                    Read More <ArrowRight className="ml-1 h-4 w-4" />
+        {recentPosts.length === 0 ? (
+          <p className="text-muted-foreground text-center">No recent posts available.</p>
+        ) : (
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {recentPosts.map((post) => (
+              <Card key={post.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                <CardHeader className="p-0">
+                  <Link href={`/blog/${post.slug}`} className="block">
+                    <div className="relative w-full h-48">
+                      <Image 
+                        src={post.coverImage || post.imageUrl || "https://picsum.photos/seed/fallback/400/250"} 
+                        alt={post.title} 
+                        layout="fill" 
+                        objectFit="cover" 
+                        data-ai-hint={post.imageHint || "tech blog"}
+                        className="transition-transform duration-500 group-hover:scale-105"
+                      />
+                    </div>
                   </Link>
-                </Button>
-              </div>
-            </Card>
-          ))}
-        </div>
+                </CardHeader>
+                <CardContent className="flex-grow p-6 space-y-3">
+                  <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+                    <Tag className="h-3.5 w-3.5" /> <span>{post.categoryName || post.category}</span>
+                    <CalendarDays className="h-3.5 w-3.5" /> <span>{post.date}</span>
+                  </div>
+                  <CardTitle className="text-xl hover:text-primary transition-colors">
+                    <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                  </CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground h-20 overflow-hidden">
+                    {post.excerpt}
+                  </CardDescription>
+                </CardContent>
+                <div className="p-6 pt-2 flex justify-between items-center">
+                   <div className="flex items-center text-xs text-muted-foreground">
+                      <User className="h-3.5 w-3.5 mr-1.5" /> {post.author}
+                    </div>
+                  <Button variant="link" asChild className="p-0 text-primary hover:text-primary/80 text-sm">
+                    <Link href={`/blog/${post.slug}`}>
+                      Read More <ArrowRight className="ml-1 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Categories Section */}
       <div>
         <h2 className="text-3xl font-semibold text-foreground mb-8">Explore by Category</h2>
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">

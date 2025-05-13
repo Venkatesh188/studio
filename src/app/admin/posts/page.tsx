@@ -1,31 +1,60 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { PlusCircle, Edit, Trash2, EyeIcon } from "lucide-react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getAllPosts, deletePost as deletePostFromStorage } from "@/lib/post-manager";
+import type { Post } from "@/types/post";
+import { useToast } from "@/hooks/use-toast";
 
-// Dummy data for now - replace with Firestore data
-const dummyPosts = [
-  { id: "1", slug: "understanding-llms", title: "Understanding Large Language Models", category: "AI News", date: "2024-07-28", status: "Published" },
-  { id: "2", slug: "tfjs-tutorial", title: "Getting Started with TensorFlow.js", category: "Tutorials", date: "2024-07-25", status: "Draft" },
-  { id: "3", slug: "ai-in-healthcare", title: "AI in Healthcare: A Case Study", category: "Case Studies", date: "2024-07-22", status: "Published" },
-];
+const categoriesMap: { [key: string]: string } = {
+  "ai-news": "AI News",
+  "tutorials": "Tutorials",
+  "case-studies": "Case Studies",
+  "industry-insights": "Industry Insights",
+  "how-to-guides": "How-To Guides",
+};
 
 export default function AdminPostsPage() {
-  // In a real app, these actions would interact with a backend/CMS
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const loadPosts = () => {
+      setIsLoading(true);
+      const fetchedPosts = getAllPosts();
+      setPosts(fetchedPosts.map(p => ({...p, categoryName: categoriesMap[p.category] || p.category })));
+      setIsLoading(false);
+    };
+    loadPosts();
+  }, []);
+
   const handleDeletePost = (postId: string, postTitle: string) => {
-    // Placeholder for actual delete logic
-    // Typically, you'd show a confirmation dialog here before deleting
-    if (confirm(`Are you sure you want to delete the post "${postTitle}"? This action cannot be undone.`)) {
-      console.log(`Simulating delete for post ID: ${postId}`);
-      // Call to CMS to delete post by ID
-      alert(`Post "${postTitle}" would be deleted. (Not implemented)`);
-      // Potentially re-fetch posts or update local state if posts were managed in state
+    const success = deletePostFromStorage(postId);
+    if (success) {
+      setPosts(prevPosts => prevPosts.filter(post => post.id !== postId));
+      toast({
+        title: "Post Deleted",
+        description: `The post "${postTitle}" has been deleted successfully.`,
+        variant: "default",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Failed to delete the post.",
+        variant: "destructive",
+      });
     }
   };
   
+  if (isLoading) {
+    return <div className="flex justify-center items-center h-full"><p>Loading posts...</p></div>;
+  }
+
   return (
     <div className="space-y-8">
       <header className="flex items-center justify-between">
@@ -46,7 +75,7 @@ export default function AdminPostsPage() {
           <CardDescription>A list of all your blog posts.</CardDescription>
         </CardHeader>
         <CardContent>
-          {dummyPosts.length === 0 ? (
+          {posts.length === 0 ? (
             <p className="text-muted-foreground">No posts found. Start by creating a new one!</p>
           ) : (
             <div className="overflow-x-auto">
@@ -61,14 +90,14 @@ export default function AdminPostsPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-background divide-y divide-border">
-                  {dummyPosts.map((post) => (
+                  {posts.map((post) => (
                     <tr key={post.id}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">{post.title}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{post.category}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{post.categoryName || post.category}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{post.date}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.status === "Published" ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"}`}>
-                          {post.status}
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.published ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"}`}>
+                          {post.published ? "Published" : "Draft"}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1">
@@ -82,9 +111,28 @@ export default function AdminPostsPage() {
                             <Edit className="h-4 w-4 text-muted-foreground hover:text-primary" />
                           </Link>
                         </Button>
-                        <Button variant="ghost" size="icon" title="Delete Post" onClick={() => handleDeletePost(post.id, post.title)}>
-                          <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button variant="ghost" size="icon" title="Delete Post">
+                              <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the post
+                                "{post.title}".
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction onClick={() => handleDeletePost(post.id, post.title)} className="bg-destructive hover:bg-destructive/90">
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </td>
                     </tr>
                   ))}

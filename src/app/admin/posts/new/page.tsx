@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -13,9 +12,11 @@ import * as z from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
+import { createPost as createPostInStorage } from "@/lib/post-manager";
+import type { Category } from "@/types/post";
 
-// These categories would ideally come from Firestore or a config
-const categories = [
+
+const categories: Category[] = [
   { slug: "ai-news", name: "AI News" },
   { slug: "tutorials", name: "Tutorials" },
   { slug: "case-studies", name: "Case Studies" },
@@ -28,7 +29,7 @@ const postSchema = z.object({
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
   category: z.string().min(1, { message: "Please select a category." }),
   content: z.string().min(50, { message: "Content must be at least 50 characters." }),
-  excerpt: z.string().max(200, { message: "Excerpt cannot exceed 200 characters." }).optional(),
+  excerpt: z.string().max(200, { message: "Excerpt cannot exceed 200 characters." }).optional().default(""),
   coverImage: z.string().url({ message: "Please enter a valid URL for the cover image." }).optional().or(z.literal('')),
   published: z.boolean().default(false),
 });
@@ -52,14 +53,22 @@ export default function NewPostPage() {
   });
 
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
-    console.log("New post data:", data);
-    // Here you would typically send the data to your backend/Firestore
-    toast({
-      title: "Post Created (Simulated)",
-      description: `The post "${data.title}" has been saved.`,
-    });
-    // router.push("/admin/posts"); // Navigate back to posts list after creation
-    form.reset();
+    try {
+      const newPost = createPostInStorage(data);
+      toast({
+        title: "Post Created",
+        description: `The post "${newPost.title}" has been saved successfully.`,
+        variant: "default",
+      });
+      router.push("/admin/posts"); 
+    } catch (error) {
+       console.error("Failed to create post:", error);
+       toast({
+        title: "Error",
+        description: "Failed to create the post. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -84,7 +93,13 @@ export default function NewPostPage() {
 
             <div>
               <Label htmlFor="slug">Slug</Label>
-              <Input id="slug" {...form.register("slug")} placeholder="e.g., my-awesome-post" className="mt-1" />
+              <Input id="slug" {...form.register("slug")} placeholder="e.g., my-awesome-post" className="mt-1" 
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const slugifiedValue = value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                  form.setValue('slug', slugifiedValue, { shouldValidate: true });
+                }}
+              />
               {form.formState.errors.slug && <p className="text-sm text-destructive mt-1">{form.formState.errors.slug.message}</p>}
             </div>
             

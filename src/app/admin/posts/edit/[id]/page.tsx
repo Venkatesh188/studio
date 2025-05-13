@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from "@/components/ui/button";
@@ -14,14 +13,10 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Switch } from "@/components/ui/switch";
+import { getPostById, updatePost as updatePostInStorage } from "@/lib/post-manager";
+import type { Post, Category } from "@/types/post";
 
-// Dummy data for now
-const dummyPosts = [
-  { id: "1", title: "Understanding Large Language Models", slug: "understanding-llms", category: "ai-news", content: "Detailed content here...", excerpt: "Short summary", coverImage: "https://picsum.photos/seed/llm/400/200", published: true },
-  { id: "2", title: "Getting Started with TensorFlow.js", slug: "tfjs-tutorial", category: "tutorials", content: "Tutorial content...", excerpt: "TF.js guide", coverImage: "", published: false },
-];
-
-const categories = [
+const categories: Category[] = [
   { slug: "ai-news", name: "AI News" },
   { slug: "tutorials", name: "Tutorials" },
   { slug: "case-studies", name: "Case Studies" },
@@ -34,7 +29,7 @@ const postSchema = z.object({
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
   category: z.string().min(1, { message: "Please select a category." }),
   content: z.string().min(50, { message: "Content must be at least 50 characters." }),
-  excerpt: z.string().max(200, { message: "Excerpt cannot exceed 200 characters." }).optional(),
+  excerpt: z.string().max(200, { message: "Excerpt cannot exceed 200 characters." }).optional().default(""),
   coverImage: z.string().url({ message: "Please enter a valid URL for the cover image." }).optional().or(z.literal('')),
   published: z.boolean().default(false),
 });
@@ -48,16 +43,16 @@ export default function EditPostPage() {
   const postId = params.id as string;
   
   const [isLoading, setIsLoading] = useState(true);
+  const [postNotFound, setPostNotFound] = useState(false);
 
   const form = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
-    // Default values will be set in useEffect
   });
 
   useEffect(() => {
     if (postId) {
-      // In a real app, fetch post data from Firestore using postId
-      const postToEdit = dummyPosts.find(p => p.id === postId);
+      setIsLoading(true);
+      const postToEdit = getPostById(postId);
       if (postToEdit) {
         form.reset({
           title: postToEdit.title,
@@ -68,27 +63,52 @@ export default function EditPostPage() {
           coverImage: postToEdit.coverImage || "",
           published: postToEdit.published,
         });
+        setPostNotFound(false);
       } else {
+        setPostNotFound(true);
         toast({ title: "Error", description: "Post not found.", variant: "destructive" });
-        router.push("/admin/posts");
       }
       setIsLoading(false);
     }
   }, [postId, form, router, toast]);
 
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
-    console.log("Updated post data:", data);
-    // Here you would typically send the updated data to your backend/Firestore
-    toast({
-      title: "Post Updated (Simulated)",
-      description: `The post "${data.title}" has been updated.`,
-    });
-    router.push("/admin/posts");
+    try {
+      const updatedPost = updatePostInStorage(postId, data);
+      if (updatedPost) {
+        toast({
+          title: "Post Updated",
+          description: `The post "${updatedPost.title}" has been updated successfully.`,
+          variant: "default",
+        });
+        router.push("/admin/posts");
+      } else {
+         toast({ title: "Error", description: "Failed to update post. Post not found.", variant: "destructive" });
+      }
+    } catch (error) {
+       console.error("Failed to update post:", error);
+       toast({
+        title: "Error",
+        description: "Failed to update the post. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   if (isLoading) {
     return <div className="flex justify-center items-center h-full"><p>Loading post data...</p></div>;
   }
+
+  if (postNotFound) {
+     return (
+      <div className="space-y-8 text-center">
+        <h1 className="text-3xl font-bold text-destructive">Post Not Found</h1>
+        <p className="text-muted-foreground">The post you are trying to edit does not exist.</p>
+        <Button onClick={() => router.push('/admin/posts')}>Back to Posts</Button>
+      </div>
+    );
+  }
+
 
   return (
     <div className="space-y-8">
@@ -112,7 +132,13 @@ export default function EditPostPage() {
 
             <div>
               <Label htmlFor="slug">Slug</Label>
-              <Input id="slug" {...form.register("slug")} className="mt-1" />
+              <Input id="slug" {...form.register("slug")} className="mt-1" 
+                onChange={(e) => {
+                  const value = e.target.value;
+                  const slugifiedValue = value.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+                  form.setValue('slug', slugifiedValue, { shouldValidate: true });
+                }}
+              />
               {form.formState.errors.slug && <p className="text-sm text-destructive mt-1">{form.formState.errors.slug.message}</p>}
             </div>
             
