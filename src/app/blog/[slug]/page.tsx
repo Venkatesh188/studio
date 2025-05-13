@@ -7,10 +7,10 @@ import { ArrowLeft, CalendarDays, User, Tag } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { getPostBySlug as getPostBySlugFromStorage } from "@/lib/post-manager";
 import type { Post } from "@/types/post";
-import { useParams } from "next/navigation";
+// import { useParams } from "next/navigation"; // No longer needed with use(params)
 import { RenderHtmlContent } from "@/lib/htmlRenderer"; 
 
 const categoriesMap: { [key: string]: string } = {
@@ -22,10 +22,8 @@ const categoriesMap: { [key: string]: string } = {
 };
 
 
-export default function BlogPostPage() {
-  const params = useParams();
-  const slugParam = params ? params.slug : null;
-  const slug = Array.isArray(slugParam) ? slugParam[0] : slugParam;
+export default function BlogPostPage({ params }: { params: { slug: string } }) {
+  const { slug } = params; // Destructure slug directly from props.params
   const [post, setPost] = useState<Post | null | undefined>(undefined); 
 
   useEffect(() => {
@@ -93,8 +91,8 @@ export default function BlogPostPage() {
           </div>
         )}
 
-        <article className="prose dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary hover:prose-a:text-primary/80 prose-strong:text-foreground prose-ul:text-foreground/90 prose-ol:text-foreground/90 prose-li:text-foreground/90 prose-img:rounded-md prose-img:shadow-md prose-code:before:content-[''] prose-code:after:content-['']">
-          {/* RenderHtmlContent will render Markdown and HTML parts of MDX. Custom React components in MDX won't render with this. */}
+        <article className="bg-card p-6 sm:p-8 rounded-lg shadow-md">
+          {/* Apply enhanced styling via RenderHtmlContent's internal prose classes */}
           <RenderHtmlContent htmlString={post.content} />
         </article>
 
