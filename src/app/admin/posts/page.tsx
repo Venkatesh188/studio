@@ -1,4 +1,6 @@
 
+'use client';
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlusCircle, Edit, Trash2, EyeIcon } from "lucide-react";
@@ -6,12 +8,24 @@ import Link from "next/link";
 
 // Dummy data for now - replace with Firestore data
 const dummyPosts = [
-  { id: "1", title: "Understanding Large Language Models", category: "AI News", date: "2024-07-28", status: "Published" },
-  { id: "2", title: "Getting Started with TensorFlow.js", category: "Tutorials", date: "2024-07-25", status: "Draft" },
-  { id: "3", title: "AI in Healthcare: A Case Study", category: "Case Studies", date: "2024-07-22", status: "Published" },
+  { id: "1", slug: "understanding-llms", title: "Understanding Large Language Models", category: "AI News", date: "2024-07-28", status: "Published" },
+  { id: "2", slug: "tfjs-tutorial", title: "Getting Started with TensorFlow.js", category: "Tutorials", date: "2024-07-25", status: "Draft" },
+  { id: "3", slug: "ai-in-healthcare", title: "AI in Healthcare: A Case Study", category: "Case Studies", date: "2024-07-22", status: "Published" },
 ];
 
 export default function AdminPostsPage() {
+  // In a real app, these actions would interact with a backend/CMS
+  const handleDeletePost = (postId: string, postTitle: string) => {
+    // Placeholder for actual delete logic
+    // Typically, you'd show a confirmation dialog here before deleting
+    if (confirm(`Are you sure you want to delete the post "${postTitle}"? This action cannot be undone.`)) {
+      console.log(`Simulating delete for post ID: ${postId}`);
+      // Call to CMS to delete post by ID
+      alert(`Post "${postTitle}" would be deleted. (Not implemented)`);
+      // Potentially re-fetch posts or update local state if posts were managed in state
+    }
+  };
+  
   return (
     <div className="space-y-8">
       <header className="flex items-center justify-between">
@@ -53,13 +67,13 @@ export default function AdminPostsPage() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{post.category}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">{post.date}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.status === "Published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>
+                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${post.status === "Published" ? "bg-green-100 text-green-800 dark:bg-green-900/50 dark:text-green-300" : "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-300"}`}>
                           {post.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-1">
                         <Button variant="ghost" size="icon" asChild title="View Post">
-                           <Link href={`/blog/${post.id}`} target="_blank"> {/* Assuming slug is id for now */}
+                           <Link href={`/blog/${post.slug}`} target="_blank">
                             <EyeIcon className="h-4 w-4 text-muted-foreground hover:text-primary" />
                           </Link>
                         </Button>
@@ -68,7 +82,7 @@ export default function AdminPostsPage() {
                             <Edit className="h-4 w-4 text-muted-foreground hover:text-primary" />
                           </Link>
                         </Button>
-                        <Button variant="ghost" size="icon" title="Delete Post" onClick={() => alert(`Delete post ${post.id}? (Not implemented)`)}>
+                        <Button variant="ghost" size="icon" title="Delete Post" onClick={() => handleDeletePost(post.id, post.title)}>
                           <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
                         </Button>
                       </td>
