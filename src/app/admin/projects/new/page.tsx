@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { createProject as createProjectInStorage } from "@/lib/project-manager";
+import { useRef } from "react";
+import { ImageInsertButton } from "@/components/shared/ImageInsertButton";
 
 const projectSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
@@ -51,6 +53,11 @@ export default function NewProjectPage() {
       tags: "",
     },
   });
+
+  const descriptionTextAreaRef = useRef<HTMLTextAreaElement>(null);
+  const problemTextAreaRef = useRef<HTMLTextAreaElement>(null);
+  const outcomeTextAreaRef = useRef<HTMLTextAreaElement>(null);
+
 
   const onSubmit: SubmitHandler<ProjectFormValues> = async (data) => {
     try {
@@ -100,7 +107,7 @@ export default function NewProjectPage() {
       <Card>
         <CardHeader>
           <CardTitle>Project Details</CardTitle>
-          <CardDescription>Enter the information for your project. Use HTML for description, problem, and outcome fields.</CardDescription>
+          <CardDescription>Enter the information for your project. Use HTML for description, problem, and outcome fields. You can insert images directly into these fields.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -117,14 +124,30 @@ export default function NewProjectPage() {
             </div>
             
             <div>
-              <Label htmlFor="description">Description (HTML supported)</Label>
-              <Textarea id="description" {...form.register("description")} rows={5} className="mt-1" placeholder="Enter project description. Use HTML for formatting." />
+              <div className="flex justify-between items-center mb-1">
+                <Label htmlFor="description">Description (HTML supported)</Label>
+                <ImageInsertButton<ProjectFormValues>
+                  formSetValue={form.setValue}
+                  formGetValues={form.getValues}
+                  fieldName="description"
+                  textareaRef={descriptionTextAreaRef}
+                />
+              </div>
+              <Textarea id="description" ref={descriptionTextAreaRef} {...form.register("description")} rows={5} className="mt-1" placeholder="Enter project description. Use HTML for formatting." />
               {form.formState.errors.description && <p className="text-sm text-destructive mt-1">{form.formState.errors.description.message}</p>}
             </div>
 
             <div>
-              <Label htmlFor="problem">Problem Statement (HTML supported)</Label>
-              <Textarea id="problem" {...form.register("problem")} rows={3} className="mt-1" placeholder="Describe the problem this project solves. Use HTML for formatting." />
+              <div className="flex justify-between items-center mb-1">
+                <Label htmlFor="problem">Problem Statement (HTML supported)</Label>
+                <ImageInsertButton<ProjectFormValues>
+                  formSetValue={form.setValue}
+                  formGetValues={form.getValues}
+                  fieldName="problem"
+                  textareaRef={problemTextAreaRef}
+                />
+              </div>
+              <Textarea id="problem" ref={problemTextAreaRef} {...form.register("problem")} rows={3} className="mt-1" placeholder="Describe the problem this project solves. Use HTML for formatting." />
               {form.formState.errors.problem && <p className="text-sm text-destructive mt-1">{form.formState.errors.problem.message}</p>}
             </div>
 
@@ -135,19 +158,27 @@ export default function NewProjectPage() {
             </div>
 
             <div>
-              <Label htmlFor="outcome">Outcome (HTML supported)</Label>
-              <Textarea id="outcome" {...form.register("outcome")} rows={3} className="mt-1" placeholder="Describe the outcome or results. Use HTML for formatting." />
+              <div className="flex justify-between items-center mb-1">
+                <Label htmlFor="outcome">Outcome (HTML supported)</Label>
+                <ImageInsertButton<ProjectFormValues>
+                  formSetValue={form.setValue}
+                  formGetValues={form.getValues}
+                  fieldName="outcome"
+                  textareaRef={outcomeTextAreaRef}
+                />
+              </div>
+              <Textarea id="outcome" ref={outcomeTextAreaRef} {...form.register("outcome")} rows={3} className="mt-1" placeholder="Describe the outcome or results. Use HTML for formatting." />
               {form.formState.errors.outcome && <p className="text-sm text-destructive mt-1">{form.formState.errors.outcome.message}</p>}
             </div>
 
             <div>
-              <Label htmlFor="imageUrl">Image URL</Label>
+              <Label htmlFor="imageUrl">Featured Image URL</Label>
               <Input id="imageUrl" {...form.register("imageUrl")} type="url" className="mt-1" placeholder="https://example.com/image.jpg" />
               {form.formState.errors.imageUrl && <p className="text-sm text-destructive mt-1">{form.formState.errors.imageUrl.message}</p>}
             </div>
             
             <div>
-              <Label htmlFor="imageHint">Image AI Hint (Optional, 1-2 words)</Label>
+              <Label htmlFor="imageHint">Featured Image AI Hint (Optional, 1-2 words)</Label>
               <Input id="imageHint" {...form.register("imageHint")} className="mt-1" placeholder="e.g. tech abstract" />
             </div>
 

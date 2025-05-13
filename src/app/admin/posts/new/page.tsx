@@ -15,6 +15,8 @@ import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { createPost as createPostInStorage } from "@/lib/post-manager";
 import type { Category } from "@/types/post";
+import { useRef } from "react";
+import { ImageInsertButton } from "@/components/shared/ImageInsertButton";
 
 
 const categories: Category[] = [
@@ -29,7 +31,7 @@ const postSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
   category: z.string().min(1, { message: "Please select a category." }),
-  content: z.string().min(50, { message: "Content must be at least 50 characters (MDX supported)." }),
+  content: z.string().min(50, { message: "Content must be at least 50 characters (MDX/HTML supported)." }),
   excerpt: z.string().max(200, { message: "Excerpt cannot exceed 200 characters." }).optional().default(""),
   coverImage: z.string().url({ message: "Please enter a valid URL for the cover image." }).optional().or(z.literal('')),
   published: z.boolean().default(false),
@@ -52,6 +54,8 @@ export default function NewPostPage() {
       published: false,
     },
   });
+
+  const contentTextAreaRef = useRef<HTMLTextAreaElement>(null);
 
   const onSubmit: SubmitHandler<PostFormValues> = async (data) => {
     try {
@@ -95,7 +99,7 @@ export default function NewPostPage() {
       <Card>
         <CardHeader>
           <CardTitle>Post Details</CardTitle>
-          <CardDescription>Enter the content and metadata for your post. Use MDX for the content field to include rich formatting, code snippets, images, and interactive components (rendering of custom React components in MDX requires further setup).</CardDescription>
+          <CardDescription>Enter the content and metadata for your post. Use MDX/HTML for the content field. You can insert images directly into the content.</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -135,13 +139,22 @@ export default function NewPostPage() {
             </div>
 
             <div>
-              <Label htmlFor="content">Content (MDX supported)</Label>
+              <div className="flex justify-between items-center mb-1">
+                <Label htmlFor="content">Content (MDX/HTML supported)</Label>
+                <ImageInsertButton<PostFormValues>
+                  formSetValue={form.setValue}
+                  formGetValues={form.getValues}
+                  fieldName="content"
+                  textareaRef={contentTextAreaRef}
+                />
+              </div>
               <Textarea 
                 id="content" 
+                ref={contentTextAreaRef}
                 {...form.register("content")} 
                 rows={15} 
                 className="mt-1 font-mono text-sm" 
-                placeholder="Enter content using MDX. E.g.,\n# My Heading\n\nSome **bold** text and *italic* text.\n\n```javascript\nconsole.log('Hello, MDX!');\n```\n\n<MyCustomComponent />\n\n![Alt text](image-url.jpg)" 
+                placeholder="Enter content using MDX/HTML. E.g.,\n# My Heading\n\nSome **bold** text and *italic* text.\n\n<p><img src='data:image/png;base64,...' alt='Embedded Image' /></p>\n\n```javascript\nconsole.log('Hello, MDX!');\n```" 
               />
               {form.formState.errors.content && <p className="text-sm text-destructive mt-1">{form.formState.errors.content.message}</p>}
             </div>
