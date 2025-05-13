@@ -17,54 +17,61 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   isAdmin: boolean;
-  signIn: (email: string) => Promise<void>; // Simplified signIn
+  signIn: (email: string, password?: string) => Promise<void>; // Password optional for mock
   signOut: () => Promise<void>;
-  signUp: (name: string, email: string) => Promise<void>; // Simplified signUp
+  signUp: (name: string, email: string, password?: string) => Promise<void>; // Password optional for mock
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 // Hardcoded admin email for mock purposes
 const ADMIN_EMAIL = 'rajuvenkatesh188@gmail.com';
+// Placeholder for a "database" of users if not using a real backend for auth
+const mockUserDatabase: { [email: string]: User & { passwordHash?: string } } = {
+  [ADMIN_EMAIL]: { id: 'admin-user-id', email: ADMIN_EMAIL, displayName: 'Admin User', passwordHash: 'hashed_12345678' /* In real app, use a proper hash */ },
+};
+
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Initially true to simulate loading
+  const [loading, setLoading] = useState(true); // Initially true
   const [isAdmin, setIsAdmin] = useState(false);
 
   // Effect to check for persisted auth state (e.g., from localStorage)
   useEffect(() => {
     const storedUser = localStorage.getItem('authUser');
     if (storedUser) {
-      const parsedUser: User = JSON.parse(storedUser);
-      setUser(parsedUser);
-      setIsAdmin(parsedUser.email === ADMIN_EMAIL);
+      try {
+        const parsedUser: User = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAdmin(parsedUser.email === ADMIN_EMAIL);
+      } catch (error) {
+        console.error("Failed to parse stored user:", error);
+        localStorage.removeItem('authUser');
+      }
     }
     setLoading(false); // Finish loading after checking localStorage
   }, []);
 
-  const signIn = useCallback(async (email: string): Promise<void> => {
+  const signIn = useCallback(async (email: string, password?: string): Promise<void> => {
     setLoading(true);
     // Simulate API call to a CMS or auth provider
     await new Promise(resolve => setTimeout(resolve, 500)); 
     
-    // For demo: if email matches admin, create a mock admin user
-    // In a real CMS, the backend would verify credentials and return user data + roles
-    if (email === ADMIN_EMAIL) {
-      const mockUser: User = { id: 'admin-user-id', email: ADMIN_EMAIL, displayName: 'Admin User' };
-      setUser(mockUser);
+    // For demo: check against mock database
+    const potentialUser = mockUserDatabase[email];
+    
+    // Simplified check: For admin, only email matters for this mock. Password check is illustrative.
+    if (email === ADMIN_EMAIL && potentialUser ) { // Check if potentialUser exists
+      // In a real app, verify password against potentialUser.passwordHash
+      // For demo, if email is admin, assume login success
+      setUser(potentialUser);
       setIsAdmin(true);
-      localStorage.setItem('authUser', JSON.stringify(mockUser));
+      localStorage.setItem('authUser', JSON.stringify(potentialUser));
     } else {
       // For non-admin users, or if CMS login fails
-      // setUser(null); // Or set to a non-admin mock user
-      // setIsAdmin(false);
-      // localStorage.removeItem('authUser');
-      // For this CMS focused task, we'll assume only admin login is relevant now.
-      // throw new Error("Invalid credentials or user not found."); // Or handle non-admin login
       console.warn("Login attempt for non-admin or unknown user:", email);
-      // To keep it simple for now, we only allow the admin user to "log in"
-      throw new Error("Only the admin user can log in at this time.");
+      throw new Error("Invalid credentials or user not found. (Mock auth: only admin login allowed)");
     }
     setLoading(false);
   }, []);
@@ -79,32 +86,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false);
   }, []);
   
-  const signUp = useCallback(async (name: string, email: string): Promise<void> => {
+  const signUp = useCallback(async (name: string, email: string, password?: string): Promise<void> => {
     setLoading(true);
     // Simulate API call to CMS for user creation
     await new Promise(resolve => setTimeout(resolve, 500));
-    // This is a placeholder. A real CMS would handle user creation.
-    // For now, we'll just log it and not create a local user state,
-    // as the primary goal is CMS-managed content by an admin.
-    console.log(`Simulated sign up for: ${name}, ${email}`);
-    // Potentially, a real CMS might auto-login or require separate login.
-    // For this demo, we don't auto-login after signup.
+    
+    if (mockUserDatabase[email]) {
+      setLoading(false);
+      throw new Error("User already exists with this email. (Mock auth)");
+    }
+
+    // Create a new mock user (in a real app, this would be a backend call)
+    // For demo, we'll allow signup but only admin can truly "use" the admin panel.
+    const newUser: User = { id: `user-${Date.now()}`, email, displayName: name };
+    mockUserDatabase[email] = { ...newUser, passwordHash: `hashed_${password}` /* Illustrative hashing */ };
+    
+    // For this demo, signup doesn't auto-login or grant admin rights.
+    // It just "registers" the user in our mock database.
+    console.log(`Simulated sign up for: ${name}, ${email}. User added to mock DB.`);
+    
     setLoading(false);
-    // throw new Error("Signup functionality is illustrative and not connected to a backend.");
   }, []);
 
 
-  // Loading state UI (can be kept simpler if preferred)
-  if (loading && typeof window !== 'undefined' && !localStorage.getItem('authUser')) {
-    // Show loading only if there's no persisted user to avoid flash of loading screen
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-background text-foreground">
-        <GlobeLock className="w-16 h-16 mb-4 text-primary animate-pulse" />
-        <p className="text-xl">Initializing App...</p>
-      </div>
-    );
-  }
-
+  // AuthProvider now always renders its children to prevent hydration mismatch.
+  // Consuming components like AdminLayout will use the `loading` state
+  // to show their own specific loading UIs.
   return (
     <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signOut, signUp }}>
       {children}
@@ -119,3 +126,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
