@@ -5,7 +5,7 @@ export interface Post {
   title: string;
   category: string; 
   categoryName?: string; 
-  content: string; // Stores HTML content
+  content: string; // Stores MDX content
   excerpt: string;
   coverImage?: string;
   imageUrl?: string; 
@@ -21,3 +21,4 @@ export interface Category {
   name: string;
   description?: string;
 }
+

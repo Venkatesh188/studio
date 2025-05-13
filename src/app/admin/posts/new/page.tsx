@@ -29,7 +29,7 @@ const postSchema = z.object({
   title: z.string().min(5, { message: "Title must be at least 5 characters." }),
   slug: z.string().min(3, { message: "Slug must be at least 3 characters." }).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, { message: "Slug can only contain lowercase letters, numbers, and hyphens." }),
   category: z.string().min(1, { message: "Please select a category." }),
-  content: z.string().min(50, { message: "Content must be at least 50 characters (HTML supported)." }),
+  content: z.string().min(50, { message: "Content must be at least 50 characters (MDX supported)." }),
   excerpt: z.string().max(200, { message: "Excerpt cannot exceed 200 characters." }).optional().default(""),
   coverImage: z.string().url({ message: "Please enter a valid URL for the cover image." }).optional().or(z.literal('')),
   published: z.boolean().default(false),
@@ -95,7 +95,7 @@ export default function NewPostPage() {
       <Card>
         <CardHeader>
           <CardTitle>Post Details</CardTitle>
-          <CardDescription>Enter the content and metadata for your post. Use HTML for the content field to include rich formatting, code snippets, and images. For direct image pasting or a visual editor, a more advanced Rich Text Editor component would be required.</CardDescription>
+          <CardDescription>Enter the content and metadata for your post. Use MDX for the content field to include rich formatting, code snippets, images, and interactive components (rendering of custom React components in MDX requires further setup).</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -135,13 +135,13 @@ export default function NewPostPage() {
             </div>
 
             <div>
-              <Label htmlFor="content">Content (HTML supported)</Label>
+              <Label htmlFor="content">Content (MDX supported)</Label>
               <Textarea 
                 id="content" 
                 {...form.register("content")} 
                 rows={15} 
-                className="mt-1" 
-                placeholder="Enter content using HTML. E.g., <p>Paragraph</p> <img src='url_or_data_uri' alt='description'> <pre><code>code_snippet</code></pre>" 
+                className="mt-1 font-mono text-sm" 
+                placeholder="Enter content using MDX. E.g.,\n# My Heading\n\nSome **bold** text and *italic* text.\n\n```javascript\nconsole.log('Hello, MDX!');\n```\n\n<MyCustomComponent />\n\n![Alt text](image-url.jpg)" 
               />
               {form.formState.errors.content && <p className="text-sm text-destructive mt-1">{form.formState.errors.content.message}</p>}
             </div>

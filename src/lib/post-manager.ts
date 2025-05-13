@@ -32,14 +32,122 @@ const savePostsToStorage = (posts: Post[]): void => {
 const initializeDummyPosts = () => {
   if (typeof window !== 'undefined' && !localStorage.getItem(POSTS_STORAGE_KEY)) {
     const dummyPosts: Post[] = [
-      { id: "1", slug: "understanding-llms", title: "Understanding Large Language Models", category: "ai-news", content: "<p>Detailed content here exploring the architecture and applications of LLMs. LLMs are a type of AI model that can process and generate human-like text. They are trained on massive datasets of text and code.</p>", excerpt: "Short summary about LLMs and their growing importance.", coverImage: "https://picsum.photos/seed/llm/400/200", published: true, date: "2024-07-28", author: "Venkatesh S.", tags: ["LLM", "AI", "NLP"] },
-      { id: "2", slug: "tfjs-tutorial", title: "Getting Started with TensorFlow.js", category: "tutorials", content: "<p>This tutorial will guide you through setting up your first TensorFlow.js project. TensorFlow.js is an open-source library that allows you to define, train, and run machine learning models in JavaScript.</p>", excerpt: "A beginner-friendly guide to TensorFlow.js for web developers.", coverImage: "https://picsum.photos/seed/tfjs/400/200", published: false, date: "2024-07-25", author: "Venkatesh S.", tags: ["TensorFlow.js", "JavaScript", "Machine Learning"] },
-      { id: "3", slug: "ai-in-healthcare", title: "AI in Healthcare: A Case Study", category: "case-studies", content: "<p>Exploring a real-world case study of AI application in diagnosing diseases. AI is revolutionizing healthcare by improving diagnostic accuracy, personalizing treatments, and streamlining administrative tasks.</p>", excerpt: "How AI is transforming diagnostics and patient care.", coverImage: "https://picsum.photos/seed/aihealth/400/200", published: true, date: "2024-07-22", author: "Venkatesh S.", tags: ["AI", "Healthcare", "Case Study"] },
-      { id: "4", slug: "future-of-generative-ai", title: "The Future of Generative AI", content: "<p>This is the full content for 'The Future of Generative AI'. It explores upcoming trends and impacts of generative AI models across industries.</p><p>Generative AI is rapidly evolving...</p><h2>Key Trends</h2><ul><li>Trend 1: Increased model capabilities and accessibility.</li><li>Trend 2: Integration into various software and platforms.</li></ul><h3>Conclusion</h3><p>The future is exciting and full of possibilities!</p>", imageUrl: "https://picsum.photos/seed/blogdetail1/800/400", imageHint: "futuristic ai", category: "ai-news", date: "2024-07-28", author: "Venkatesh S.", tags: ["Generative AI", "Future Tech", "Machine Learning"], published: true, excerpt: "Exploring upcoming trends and impacts of generative AI models.", coverImage: "https://picsum.photos/seed/genai/400/250" },
-      { id: "5", slug: "beginners-guide-prompt-engineering", title: "A Beginner's Guide to Prompt Engineering", content: "<p>Full content for 'A Beginner's Guide to Prompt Engineering'. Learn the art of crafting effective prompts for better AI-generated results.</p><h3>What is Prompt Engineering?</h3><p>It's the process of structuring text that can be interpreted and understood by a generative AI model.</p><h3>Best Practices</h3><ol><li>Be specific and clear in your instructions.</li><li>Provide context and examples when necessary.</li><li>Iterate on your prompts to refine the output.</li></ol>", imageUrl: "https://picsum.photos/seed/blogdetail2/800/400", imageHint: "coding tutorial", category: "tutorials", date: "2024-07-25", author: "Venkatesh S.", tags: ["Prompt Engineering", "AI Beginners", "Tutorial"], published: true, excerpt: "Learn the art of crafting effective prompts for better AI-generated results.", coverImage: "https://picsum.photos/seed/prompt/400/250" },
-      { id: "6", slug: "ai-in-personalized-education", title: "AI in Personalized Education", category: "case-studies", content: "<p>Exploring how AI tailors learning experiences for students. This includes adaptive learning platforms, intelligent tutoring systems, and personalized content recommendations.</p><h2>Benefits</h2><ul><li>Improved student engagement.</li><li>Better learning outcomes.</li><li>Catering to individual learning paces.</li></ul>", excerpt: "How artificial intelligence is tailoring learning experiences for students worldwide.", coverImage: "https://picsum.photos/seed/aiedu/400/250", published: true, date: "2024-07-22", author: "Venkatesh S.", tags: ["AI", "Education", "Personalization"] },
-      { id: "7", slug: "navigating-ethical-ai", title: "Navigating Ethical AI Development", category: "industry-insights", content: "<p>Key considerations for building responsible and ethical AI systems. This involves addressing bias, ensuring transparency, and maintaining accountability.</p><h3>Core Principles</h3><ul><li>Fairness: AI systems should treat all individuals equitably.</li><li>Accountability: Mechanisms for responsibility when AI systems make errors.</li><li>Transparency: Understanding how AI models arrive at their decisions.</li></ul>", excerpt: "Key considerations for building responsible and ethical AI systems.", coverImage: "https://picsum.photos/seed/ethicsai/400/250", published: true, date: "2024-07-19", author: "Venkatesh S.", tags: ["Ethical AI", "AI Governance", "Responsible AI"] },
+      { id: "1", slug: "understanding-llms", title: "Understanding Large Language Models", category: "ai-news", 
+        content: `
+# Understanding Large Language Models
 
+Large Language Models (LLMs) are a type of artificial intelligence (AI) model capable of processing and generating human-like text. They are trained on massive datasets of text and code, enabling them to understand context, answer questions, write essays, translate languages, and much more.
+
+## Key Concepts
+
+*   **Transformer Architecture:** Most modern LLMs are based on the transformer architecture, which uses attention mechanisms to weigh the importance of different words in a sequence.
+*   **Pre-training & Fine-tuning:** LLMs are typically pre-trained on a vast corpus of general text and then fine-tuned on more specific datasets for particular tasks.
+*   **Prompt Engineering:** The art of crafting effective input prompts to guide LLMs to produce desired outputs.
+
+Checkout this image:
+![An abstract representation of AI concepts](https://picsum.photos/seed/llm-content/600/300)
+
+<p>LLMs represent a significant advancement in natural language processing and have wide-ranging applications across industries.</p>
+        `, 
+        excerpt: "Short summary about LLMs and their growing importance in the field of AI.", 
+        coverImage: "https://picsum.photos/seed/llm/400/200", imageHint: "abstract ai", published: true, date: "2024-07-28", author: "Venkatesh S.", tags: ["LLM", "AI", "NLP"] 
+      },
+      { id: "2", slug: "tfjs-tutorial", title: "Getting Started with TensorFlow.js", category: "tutorials", 
+        content: `
+# Getting Started with TensorFlow.js
+
+This tutorial will guide you through setting up your first TensorFlow.js project. TensorFlow.js is an open-source library that allows you to define, train, and run machine learning models directly in the browser or Node.js.
+
+## Step 1: Setup
+
+First, include the TensorFlow.js library in your HTML file:
+
+\`\`\`html
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest/dist/tf.min.js"></script>
+\`\`\`
+
+Or install it via npm:
+\`\`\`bash
+npm install @tensorflow/tfjs
+\`\`\`
+
+## Step 2: Define a Model
+
+Here's a simple example of defining a sequential model:
+
+\`\`\`javascript
+// Define a simple sequential model
+const model = tf.sequential();
+model.add(tf.layers.dense({units: 1, inputShape: [1]}));
+
+// Compile the model
+model.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
+
+// Generate some synthetic data for training
+const xs = tf.tensor2d([1, 2, 3, 4], [4, 1]);
+const ys = tf.tensor2d([1, 3, 5, 7], [4, 1]);
+
+// Train the model
+async function trainModel() {
+  await model.fit(xs, ys, {epochs: 250});
+  console.log('Model trained!');
+}
+
+trainModel();
+\`\`\`
+<p>This is a very basic introduction. Explore the official documentation for more advanced features!</p>
+        `, 
+        excerpt: "A beginner-friendly guide to TensorFlow.js for web developers looking to run ML in the browser.", 
+        coverImage: "https://picsum.photos/seed/tfjs/400/200", imageHint: "code computer", published: false, date: "2024-07-25", author: "Venkatesh S.", tags: ["TensorFlow.js", "JavaScript", "Machine Learning"] 
+      },
+      { id: "3", slug: "ai-in-healthcare", title: "AI in Healthcare: A Case Study", category: "case-studies", 
+        content: `
+# AI in Healthcare: A Case Study
+
+This post explores a real-world case study of AI application in diagnosing diseases, specifically focusing on retinal image analysis for diabetic retinopathy.
+
+## The Challenge
+
+Diabetic retinopathy is a leading cause of blindness. Early detection through regular retinal screenings is crucial, but manual analysis by ophthalmologists is time-consuming and resource-intensive.
+
+## The AI Solution
+
+An AI model, typically a Convolutional Neural Network (CNN), was trained on a large dataset of retinal images labeled by severity of diabetic retinopathy.
+
+*   **Data Collection:** High-resolution retinal images.
+*   **Preprocessing:** Image normalization, augmentation.
+*   **Model Training:** Using a CNN architecture like ResNet or Inception.
+*   **Validation:** Testing on an independent dataset and comparing with expert ophthalmologists.
+
+### Results
+The AI model achieved a diagnostic accuracy comparable to human experts, significantly reducing the time taken for analysis.
+
+<p>This case study highlights how AI can augment medical professionals, improve efficiency, and make healthcare more accessible.</p>
+        `, 
+        excerpt: "How AI is transforming diagnostics and patient care, focusing on a diabetic retinopathy case study.", 
+        coverImage: "https://picsum.photos/seed/aihealth/400/200", imageHint: "medical tech", published: true, date: "2024-07-22", author: "Venkatesh S.", tags: ["AI", "Healthcare", "Case Study", "CNN"] 
+      },
+      { id: "4", slug: "future-of-generative-ai", title: "The Future of Generative AI", 
+        content: `
+# The Future of Generative AI
+
+This is the full content for 'The Future of Generative AI'. It explores upcoming trends and impacts of generative AI models across industries.
+
+Generative AI is rapidly evolving...
+
+## Key Trends
+*   Trend 1: Increased model capabilities and accessibility.
+*   Trend 2: Integration into various software and platforms.
+*   Trend 3: Ethical considerations and responsible AI development becoming paramount.
+
+<p>This is an image embedded using an HTML img tag within MDX:</p>
+<img src="https://picsum.photos/seed/blogdetail1/800/400" alt="Futuristic AI" style="width:100%;border-radius:8px;margin-top:1rem;margin-bottom:1rem;" data-ai-hint="futuristic ai" />
+
+### Conclusion
+The future is exciting and full of possibilities! We anticipate more personalized and sophisticated AI applications.
+        `, 
+        imageUrl: "https://picsum.photos/seed/blogdetail1/800/400", imageHint: "futuristic ai", category: "ai-news", date: "2024-07-28", author: "Venkatesh S.", tags: ["Generative AI", "Future Tech", "Machine Learning"], published: true, excerpt: "Exploring upcoming trends and impacts of generative AI models.", coverImage: "https://picsum.photos/seed/genai/400/250" 
+      },
     ];
     savePostsToStorage(dummyPosts);
   }
@@ -67,7 +175,7 @@ export const createPost = (newPostData: Omit<Post, 'id' | 'date' | 'author'>): P
     ...newPostData,
     id: Date.now().toString(),
     date: new Date().toISOString().split('T')[0], 
-    author: 'Venkatesh S.', 
+    author: 'Venkatesh S.', // Default author, can be changed
   };
   const updatedPosts = [...posts, newPost];
   savePostsToStorage(updatedPosts);
@@ -80,6 +188,7 @@ export const updatePost = (id: string, updatedData: Partial<Post>): Post | undef
   if (postIndex === -1) {
     return undefined;
   }
+  // Ensure the ID is not overwritten by updatedData
   const updatedPost = { ...posts[postIndex], ...updatedData, id }; 
   posts[postIndex] = updatedPost;
   savePostsToStorage(posts);

@@ -11,7 +11,7 @@ import { useEffect, useState } from "react";
 import { getPostBySlug as getPostBySlugFromStorage } from "@/lib/post-manager";
 import type { Post } from "@/types/post";
 import { useParams } from "next/navigation";
-import { RenderHtmlContent } from "@/lib/htmlRenderer"; // Import the HTML renderer
+import { RenderHtmlContent } from "@/lib/htmlRenderer"; 
 
 const categoriesMap: { [key: string]: string } = {
   "ai-news": "AI News",
@@ -24,7 +24,8 @@ const categoriesMap: { [key: string]: string } = {
 
 export default function BlogPostPage() {
   const params = useParams();
-  const slug = params ? (params.slug as string) : ''; 
+  const slugParam = params ? params.slug : null;
+  const slug = Array.isArray(slugParam) ? slugParam[0] : slugParam;
   const [post, setPost] = useState<Post | null | undefined>(undefined); 
 
   useEffect(() => {
@@ -92,7 +93,8 @@ export default function BlogPostPage() {
           </div>
         )}
 
-        <article>
+        <article className="prose dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-foreground/90 prose-a:text-primary hover:prose-a:text-primary/80 prose-strong:text-foreground prose-ul:text-foreground/90 prose-ol:text-foreground/90 prose-li:text-foreground/90 prose-img:rounded-md prose-img:shadow-md prose-code:before:content-[''] prose-code:after:content-['']">
+          {/* RenderHtmlContent will render Markdown and HTML parts of MDX. Custom React components in MDX won't render with this. */}
           <RenderHtmlContent htmlString={post.content} />
         </article>
 
@@ -118,3 +120,4 @@ export default function BlogPostPage() {
     </SectionWrapper>
   );
 }
+
