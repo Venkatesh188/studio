@@ -8,10 +8,9 @@ import { Menu, CodeXml, LogIn, UserCog, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/use-auth';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase/client';
-import { useRouter } from 'next/navigation'; // Import useRouter
-import ThemeSwitcher from './ThemeSwitcher'; // Import ThemeSwitcher
+import { useRouter } from 'next/navigation'; 
+import ThemeSwitcher from './ThemeSwitcher'; 
+import { useToast } from '@/hooks/use-toast';
 
 const baseNavItems = [
   { href: '#about', label: 'About' },
@@ -25,17 +24,18 @@ const baseNavItems = [
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState('');
-  const { user, loading } = useAuth();
-  const router = useRouter(); // Initialize useRouter
+  const { user, loading, signOut: authSignOut } = useAuth();
+  const router = useRouter(); 
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
-      router.push('/login'); // Redirect to login after sign out
-      // Optionally, show a toast message for successful logout
+      await authSignOut();
+      toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+      router.push('/login'); 
     } catch (error) {
       console.error("Error signing out: ", error);
-      // Handle error
+      toast({ title: 'Logout Failed', description: 'Could not log out. Please try again.', variant: 'destructive' });
     }
   };
 
@@ -82,7 +82,7 @@ export default function Header() {
               <Link key={item.label} href={item.href} passHref legacyBehavior>
                 <a className={cn(
                   "px-3 py-2 rounded-md text-sm font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-1.5",
-                  (item.href.startsWith('#') ? activeSection === item.href : activeSection.startsWith(item.href))
+                  (item.href.startsWith('#') ? activeSection === item.href : pathname.startsWith(item.href))
                     ? "text-primary bg-primary/10" 
                     : "text-foreground/80"
                 )}>
@@ -122,7 +122,7 @@ export default function Header() {
                      <Link key={item.label} href={item.href} passHref legacyBehavior>
                       <a className={cn(
                         "block px-3 py-2 rounded-md text-base font-medium transition-colors hover:text-primary hover:bg-primary/10 flex items-center gap-2",
-                        (item.href.startsWith('#') ? activeSection === item.href : activeSection.startsWith(item.href))
+                        (item.href.startsWith('#') ? activeSection === item.href : pathname.startsWith(item.href))
                           ? "text-primary bg-primary/10" 
                           : "text-foreground/80"
                       )}>
@@ -153,3 +153,11 @@ export default function Header() {
     </header>
   );
 }
+// Helper to get current pathname for active link styling in mobile view
+// This assumes a similar logic to usePathname could be replicated or passed if Header becomes server component
+// For client component, usePathname can be used directly.
+let pathname = '';
+if (typeof window !== 'undefined') {
+  pathname = window.location.pathname;
+}
+

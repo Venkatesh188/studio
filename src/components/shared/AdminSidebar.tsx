@@ -4,12 +4,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, FileText, UserCircle, Newspaper, Settings, Tags } from 'lucide-react';
+import { LayoutDashboard, FileText, UserCircle, Newspaper, Settings, Tags, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useAuth } from '@/hooks/use-auth'; // Assuming useAuth provides a signOut method or similar
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase/client';
+import { useAuth } from '@/hooks/use-auth'; 
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 const adminNavItems = [
   { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -22,15 +21,17 @@ const adminNavItems = [
 export default function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useAuth(); // Get user for display or conditional rendering if needed
+  const { user, signOut: authSignOut } = useAuth(); // Get user and signOut from new useAuth
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     try {
-      await signOut(auth);
+      await authSignOut();
+      toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
       router.push('/login');
     } catch (error) {
       console.error("Error signing out: ", error);
-      // Handle error (e.g., show toast)
+      toast({ title: 'Logout Failed', description: 'Could not log out. Please try again.', variant: 'destructive' });
     }
   };
 
@@ -65,7 +66,7 @@ export default function AdminSidebar() {
       </nav>
       <div>
         <Button variant="outline" className="w-full" onClick={handleSignOut}>
-          Log Out
+          <LogOut className="mr-2 h-4 w-4" /> Log Out
         </Button>
       </div>
     </aside>

@@ -17,13 +17,7 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
-      // Add other image hostnames if needed, e.g., Firebase Storage
-      // {
-      //   protocol: 'https',
-      //   hostname: 'firebasestorage.googleapis.com',
-      //   port: '',
-      //   pathname: '/**',
-      // },
+      // Firebase Storage remote pattern removed
     ],
   },
   experimental: {

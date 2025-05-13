@@ -10,11 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
-import { auth } from '@/lib/firebase/client';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '@/hooks/use-auth';
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -27,6 +26,7 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 export default function SignupPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const { signUp } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -42,28 +42,26 @@ export default function SignupPage() {
   const onSubmit: SubmitHandler<SignupFormValues> = async (data) => {
     setIsLoading(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, data.email, data.password);
-      await updateProfile(userCredential.user, { displayName: data.name });
+      // Use the signUp from the new AuthContext
+      // This is a mock/simulated call as the CMS would handle actual user creation.
+      await signUp(data.name, data.email); 
       
       toast({
-        title: 'Account Created!',
-        description: 'You have successfully signed up. Please log in.',
+        title: 'Signup Submitted (Simulated)',
+        description: 'Your signup request has been processed. In a real system, you might receive a confirmation or be redirected.',
         variant: 'default',
       });
-      router.push('/login');
+      // Redirect to login or a confirmation page. For now, login.
+      // In a real CMS scenario, the CMS might handle user creation and then redirect.
+      // For this app, we only provide admin login functionality.
+      router.push('/login'); 
     } catch (error: any) {
-      let errorMessage = "An unexpected error occurred. Please try again.";
-      if (error.code === "auth/email-already-in-use") {
-        errorMessage = "This email address is already in use. Please try another one or log in.";
-      } else if (error.code === "auth/weak-password") {
-        errorMessage = "The password is too weak. Please choose a stronger password.";
-      }
-      console.error("Signup error:", error);
       toast({
         title: 'Signup Failed',
-        description: errorMessage,
+        description: error.message || "An unexpected error occurred. Please try again.",
         variant: 'destructive',
       });
+      console.error("Signup error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -73,10 +71,10 @@ export default function SignupPage() {
     <div className="container mx-auto flex min-h-[calc(100vh-10rem)] items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md shadow-2xl">
         <CardHeader className="text-center">
-          <CardTitle className="text-3xl font-bold text-primary">Create an Account</CardTitle>
+          <CardTitle className="text-3xl font-bold text-primary">Create Admin Account</CardTitle>
           <CardDescription>
-            Join Venkatesh.ai to manage content.
-            If you are the site admin and setting up your account, use the credentials provided.
+            Set up your admin account to manage website content.
+            (This is a simulated signup for demo purposes).
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -126,9 +124,9 @@ export default function SignupPage() {
                 className="absolute right-1 top-7 h-7 w-7 text-muted-foreground hover:text-foreground"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
               >
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                <span className="sr-only">{showPassword ? 'Hide password' : 'Show password'}</span>
               </Button>
               {form.formState.errors.password && (
                 <p className="mt-1 text-sm text-destructive">{form.formState.errors.password.message}</p>
