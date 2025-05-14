@@ -1,119 +1,83 @@
 
 'use client';
+// src/hooks/use-auth.tsx
 
-import type { ReactNode } from 'react';
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
-import { GlobeLock } from 'lucide-react'; // Placeholder icon
+import type { ReactNode} from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-// Mock User type, can be expanded if more user details are needed from the CMS
+// Mock User type - This is for frontend representation if needed, 
+// but actual auth and user management for CMS is via WordPress.
 interface User {
-  id: string;
+  id: string; // WordPress User ID
   email: string;
   displayName?: string;
-  // Add other relevant user fields that your CMS might provide
+  // Potentially roles or capabilities if fetched from WP
 }
 
 interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  isAdmin: boolean;
-  signIn: (email: string, password?: string) => Promise<void>; // Password optional for mock
-  signOut: () => Promise<void>;
-  signUp: (name: string, email: string, password?: string) => Promise<void>; // Password optional for mock
+  user: User | null; // Represents a logged-in WordPress admin *if* we implement frontend mirroring
+  loading: boolean; // For async operations related to this mock/future frontend auth
+  isAdmin: boolean; // True if the WP user has admin capabilities (future)
+  // WP login/logout will happen on the WP site itself.
+  // These functions could be used for frontend state management if needed.
+  // For now, they are placeholders or can be removed if no frontend login state is managed.
+  signIn: (userData: User) => Promise<void>; // Simulate setting a user state
+  signOut: () => Promise<void>; // Simulate clearing user state
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Hardcoded admin email for mock purposes
-const ADMIN_EMAIL = 'rajuvenkatesh188@gmail.com';
-// Placeholder for a "database" of users if not using a real backend for auth
-const mockUserDatabase: { [email: string]: User & { passwordHash?: string } } = {
-  [ADMIN_EMAIL]: { id: 'admin-user-id', email: ADMIN_EMAIL, displayName: 'Admin User', passwordHash: 'hashed_12345678' /* In real app, use a proper hash */ },
-};
-
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Initially true
+  const [loading, setLoading] = useState(false); // No initial auth check from frontend for WP admin
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Effect to check for persisted auth state (e.g., from localStorage)
-  useEffect(() => {
-    const storedUser = localStorage.getItem('authUser');
-    if (storedUser) {
-      try {
-        const parsedUser: User = JSON.parse(storedUser);
-        setUser(parsedUser);
-        setIsAdmin(parsedUser.email === ADMIN_EMAIL);
-      } catch (error) {
-        console.error("Failed to parse stored user:", error);
-        localStorage.removeItem('authUser');
-      }
-    }
-    setLoading(false); // Finish loading after checking localStorage
-  }, []);
+  // This context is now mostly a placeholder.
+  // True WordPress admin authentication happens on the WordPress instance.
+  // This Next.js app is a consumer of the WordPress API.
 
-  const signIn = useCallback(async (email: string, password?: string): Promise<void> => {
+  // Placeholder signIn - could be used if we stored some WP user info in frontend
+  const signIn = useCallback(async (userData: User): Promise<void> => {
     setLoading(true);
-    // Simulate API call to a CMS or auth provider
-    await new Promise(resolve => setTimeout(resolve, 500)); 
-    
-    // For demo: check against mock database
-    const potentialUser = mockUserDatabase[email];
-    
-    // Simplified check: For admin, only email matters for this mock. Password check is illustrative.
-    if (email === ADMIN_EMAIL && potentialUser ) { // Check if potentialUser exists
-      // In a real app, verify password against potentialUser.passwordHash
-      // For demo, if email is admin, assume login success
-      setUser(potentialUser);
-      setIsAdmin(true);
-      localStorage.setItem('authUser', JSON.stringify(potentialUser));
-    } else {
-      // For non-admin users, or if CMS login fails
-      console.warn("Login attempt for non-admin or unknown user:", email);
-      throw new Error("Invalid credentials or user not found. (Mock auth: only admin login allowed)");
-    }
+    // In a real scenario with frontend mirroring of WP login, you might store a token.
+    // For now, just sets local state.
+    setUser(userData);
+    // Determine isAdmin based on userData if roles/capabilities are fetched
+    setIsAdmin(true); // Assuming any user set via this mock signIn is admin for demo
+    localStorage.setItem('mockWpUser', JSON.stringify(userData));
     setLoading(false);
   }, []);
 
   const signOut = useCallback(async (): Promise<void> => {
     setLoading(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 300));
     setUser(null);
     setIsAdmin(false);
-    localStorage.removeItem('authUser');
+    localStorage.removeItem('mockWpUser');
     setLoading(false);
   }, []);
   
-  const signUp = useCallback(async (name: string, email: string, password?: string): Promise<void> => {
+  // Effect to check for a persisted mock user (e.g., from localStorage)
+  // This is for demonstration if you want to simulate a "logged in" state on the frontend
+  // without actual WP session cookies being accessible directly by client-side JS.
+  useEffect(() => {
     setLoading(true);
-    // Simulate API call to CMS for user creation
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    if (mockUserDatabase[email]) {
-      setLoading(false);
-      throw new Error("User already exists with this email. (Mock auth)");
+    const storedUser = localStorage.getItem('mockWpUser');
+    if (storedUser) {
+      try {
+        const parsedUser: User = JSON.parse(storedUser);
+        setUser(parsedUser);
+        setIsAdmin(true); // Assume stored user is admin for demo
+      } catch (error) {
+        console.error("Failed to parse stored mock user:", error);
+        localStorage.removeItem('mockWpUser');
+      }
     }
-
-    // Create a new mock user (in a real app, this would be a backend call)
-    // For demo, we'll allow signup but only admin can truly "use" the admin panel.
-    const newUser: User = { id: `user-${Date.now()}`, email, displayName: name };
-    mockUserDatabase[email] = { ...newUser, passwordHash: `hashed_${password}` /* Illustrative hashing */ };
-    
-    // For this demo, signup doesn't auto-login or grant admin rights.
-    // It just "registers" the user in our mock database.
-    console.log(`Simulated sign up for: ${name}, ${email}. User added to mock DB.`);
-    
     setLoading(false);
   }, []);
 
 
-  // AuthProvider now always renders its children to prevent hydration mismatch.
-  // Consuming components like AdminLayout will use the `loading` state
-  // to show their own specific loading UIs.
   return (
-    <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signOut, signUp }}>
+    <AuthContext.Provider value={{ user, loading, isAdmin, signIn, signOut }}>
       {children}
     </AuthContext.Provider>
   );
@@ -126,4 +90,3 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-

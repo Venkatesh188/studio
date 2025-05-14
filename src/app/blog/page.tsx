@@ -1,3 +1,4 @@
+
 'use client';
 
 import SectionWrapper from "@/components/shared/SectionWrapper";
@@ -7,34 +8,39 @@ import { ArrowRight, Tag, CalendarDays, User } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { getRecentPosts } from "@/lib/post-manager";
-import type { Post, Category } from "@/types/post";
-
-const blogCategories: Category[] = [
-  { name: "AI News", slug: "ai-news", description: "Latest updates and breakthroughs in the world of AI." },
-  { name: "Tutorials", slug: "tutorials", description: "Step-by-step guides to learn new AI skills." },
-  { name: "Case Studies", slug: "case-studies", description: "Real-world applications and successes of AI." },
-  { name: "Industry Insights", slug: "industry-insights", description: "Expert perspectives on AI trends and impacts." },
-  { name: "How-To Guides", slug: "how-to-guides", description: "Practical instructions for AI tools and techniques." },
-];
-
-const categoriesMap: { [key: string]: string } = Object.fromEntries(
-  blogCategories.map(cat => [cat.slug, cat.name])
-);
+import type { WordPressPost, WordPressCategory } from "@/types/wordpress";
+import { getRecentPosts, getAllCategories } from "@/lib/wordpress/api";
+import { format } from 'date-fns';
 
 export default function BlogPage() {
-  const [recentPosts, setRecentPosts] = useState<Post[]>([]);
+  const [recentPosts, setRecentPosts] = useState<WordPressPost[]>([]);
+  const [categories, setCategories] = useState<WordPressCategory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    setIsLoading(true);
-    const posts = getRecentPosts(3); // Get 3 most recent published posts
-    setRecentPosts(posts.map(p => ({...p, categoryName: categoriesMap[p.category] || p.category })));
-    setIsLoading(false);
+    async function fetchData() {
+      setIsLoading(true);
+      try {
+        const [postsData, categoriesData] = await Promise.all([
+          getRecentPosts(3), // Fetch 3 most recent posts
+          getAllCategories()
+        ]);
+        setRecentPosts(postsData);
+        setCategories(categoriesData.filter(cat => cat.count && cat.count > 0)); // Filter categories with posts
+      } catch (error) {
+        console.error("Failed to fetch blog page data:", error);
+      }
+      setIsLoading(false);
+    }
+    fetchData();
   }, []);
 
   if (isLoading) {
-    return <SectionWrapper id="blog-page-loading" title="Venkatesh.ai Blog" subtitle="Insights, Tutorials, and News on Artificial Intelligence"><p className="text-center">Loading posts...</p></SectionWrapper>;
+    return (
+      <SectionWrapper id="blog-page-loading" title="Venkatesh.ai Blog" subtitle="Insights, Tutorials, and News on Artificial Intelligence">
+        <p className="text-center text-muted-foreground">Loading posts and categories...</p>
+      </SectionWrapper>
+    );
   }
 
   return (
@@ -49,14 +55,14 @@ export default function BlogPage() {
             {recentPosts.map((post) => (
               <Card key={post.id} className="flex flex-col overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
                 <CardHeader className="p-0">
-                  <Link href={`/blog/${post.slug}`} className="block">
+                  <Link href={`/blog/${post.slug}`} className="block group">
                     <div className="relative w-full h-48">
                       <Image 
-                        src={post.coverImage || post.imageUrl || "https://picsum.photos/seed/fallback/400/250"} 
-                        alt={post.title} 
-                        layout="fill" 
-                        objectFit="cover" 
-                        data-ai-hint={post.imageHint || "tech blog"}
+                        src={post.featuredImage?.node?.sourceUrl || "https://picsum.photos/seed/fallbackblog/400/250"} 
+                        alt={post.featuredImage?.node?.altText || post.title} 
+                        fill={true}
+                        style={{objectFit:"cover"}}
+                        data-ai-hint={post.featuredImage?.node?.altText?.substring(0,15) || "tech blog"}
                         className="transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
@@ -64,19 +70,19 @@ export default function BlogPage() {
                 </CardHeader>
                 <CardContent className="flex-grow p-6 space-y-3">
                   <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-                    <Tag className="h-3.5 w-3.5" /> <span>{post.categoryName || post.category}</span>
-                    <CalendarDays className="h-3.5 w-3.5" /> <span>{post.date}</span>
+                    {post.categories?.edges?.[0]?.node && (
+                      <><Tag className="h-3.5 w-3.5" /> <span>{post.categories.edges[0].node.name}</span></>
+                    )}
+                    <CalendarDays className="h-3.5 w-3.5" /> <span>{format(new Date(post.date), 'MMMM d, yyyy')}</span>
                   </div>
                   <CardTitle className="text-xl hover:text-primary transition-colors">
                     <Link href={`/blog/${post.slug}`}>{post.title}</Link>
                   </CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground h-20 overflow-hidden">
-                    {post.excerpt}
-                  </CardDescription>
+                  {post.excerpt && <RenderHtmlContent htmlString={post.excerpt} className="text-sm text-muted-foreground h-20 overflow-hidden prose-sm dark:prose-invert" />}
                 </CardContent>
                 <div className="p-6 pt-2 flex justify-between items-center">
                    <div className="flex items-center text-xs text-muted-foreground">
-                      <User className="h-3.5 w-3.5 mr-1.5" /> {post.author}
+                      {post.author?.node?.name && <><User className="h-3.5 w-3.5 mr-1.5" /> {post.author.node.name}</>}
                     </div>
                   <Button variant="link" asChild className="p-0 text-primary hover:text-primary/80 text-sm">
                     <Link href={`/blog/${post.slug}`}>
@@ -92,25 +98,29 @@ export default function BlogPage() {
 
       <div>
         <h2 className="text-3xl font-semibold text-foreground mb-8">Explore by Category</h2>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {blogCategories.map((category) => (
-            <Card key={category.slug} className="shadow-md hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="text-xl text-primary hover:text-primary/90">
-                  <Link href={`/blog/category/${category.slug}`}>{category.name}</Link>
-                </CardTitle>
-                <CardDescription>{category.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="outline" size="sm" asChild>
-                  <Link href={`/blog/category/${category.slug}`}>
-                    View Posts <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {categories.length === 0 ? (
+           <p className="text-muted-foreground text-center">No categories with posts available.</p>
+        ) : (
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {categories.map((category) => (
+              <Card key={category.id} className="shadow-md hover:shadow-lg transition-shadow">
+                <CardHeader>
+                  <CardTitle className="text-xl text-primary hover:text-primary/90">
+                    <Link href={`/blog/category/${category.slug}`}>{category.name}</Link>
+                  </CardTitle>
+                  {category.description && <CardDescription>{category.description}</CardDescription>}
+                </CardHeader>
+                <CardContent>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/blog/category/${category.slug}`}>
+                      View Posts ({category.count || 0}) <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </SectionWrapper>
   );
